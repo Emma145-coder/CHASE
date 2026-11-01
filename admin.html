@@ -4,25 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Chase Admin Portal</title>
-  
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
   <style>
     :root { 
-      --chase-blue: #117ACA; 
-      --chase-blue-hover: #0D5F9E; 
-      --chase-header-blue: #004b87;
-      --bg-body: #F4F6F9; 
-      --text-main: #211E1E; 
-      --text-muted: #5A5A5A; 
-      --success-green: #008A05; 
+      --chase-blue: #117ACA; --chase-blue-hover: #0D5F9E; --chase-header-blue: #004b87;
+      --bg-body: #F4F6F9; --text-main: #211E1E; --text-muted: #5A5A5A; --success-green: #008A05; 
     }
-    
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body { font-family: 'DM Sans', 'Open Sans', sans-serif; background-color: var(--bg-body); color: var(--text-main); line-height: 1.5; min-height: 100vh; }
     a { text-decoration: none; color: inherit; }
-    
-    /* LOGIN SCREEN */
     #login-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; background-color: #EFEFEF; }
     .login-card { background: #FFFFFF; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); width: 100%; max-width: 400px; text-align: center; }
     .login-card h1 { font-size: 32px; font-weight: 600; color: #000; margin-bottom: 30px; font-family: Georgia, serif; }
@@ -31,8 +21,6 @@
     .login-input-group input:focus { border-color: var(--chase-blue); }
     .btn-login { width: 100%; background: var(--chase-blue); color: #fff; padding: 16px; border-radius: 30px; font-size: 16px; font-weight: 600; border: none; cursor: pointer; margin-top: 10px; transition: background 0.2s; }
     .btn-login:hover { background: var(--chase-blue-hover); }
-
-    /* DASHBOARD */
     #admin-dashboard { display: none; }
     .admin-header { background: var(--chase-header-blue); color: #fff; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
     .admin-header-logo { font-family: Georgia, serif; font-size: 20px; font-weight: 700; letter-spacing: 1px; }
@@ -41,15 +29,11 @@
     .btn-signout-admin { background: transparent; border: 1px solid #fff; color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 14px; cursor: pointer; transition: background 0.2s; }
     .btn-signout-admin:hover { background: rgba(255,255,255,0.1); }
     .admin-main { padding: 20px; max-width: 1000px; margin: 0 auto; }
-
-    /* Stat Cards */
     .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
     .stat-card { background: #fff; border-radius: 12px; padding: 20px; border-left: 5px solid var(--chase-blue); box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
     .stat-card h3 { font-size: 28px; font-weight: 500; color: var(--text-main); margin-bottom: 4px; }
     .stat-card p { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
     .stat-card.green-stat h3 { color: var(--success-green); }
-
-    /* Panels */
     .panel { background: #fff; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
     .panel h2 { font-size: 18px; font-weight: 600; color: #000; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid #eee; }
     .form-group { margin-bottom: 16px; }
@@ -62,40 +46,31 @@
     .btn-blue:hover { background: var(--chase-blue-hover); }
     .btn-dark { background: #333; color: #fff; padding: 14px 24px; border-radius: 30px; font-size: 15px; font-weight: 600; border: none; cursor: pointer; width: 100%; transition: background 0.2s; margin-top: 8px; }
     .btn-dark:hover { background: #111; }
-
-    /* User List */
     .user-list-item { display: flex; justify-content: space-between; align-items: center; padding: 16px; border-bottom: 1px solid #eee; }
     .user-list-item:last-child { border-bottom: none; }
     .user-info h4 { font-size: 16px; font-weight: 600; color: var(--chase-header-blue); margin-bottom: 2px; }
     .user-info .email { font-size: 13px; color: var(--chase-blue); text-decoration: underline; margin-bottom: 4px; display: inline-block; }
     .user-info p { font-size: 13px; color: var(--text-muted); }
-    
     .user-info .status-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-top: 8px; }
     .status-active { background: #E8F5E9; color: var(--success-green); }
     .status-pending { background: #FFF3E0; color: #E65100; }
     .status-frozen { background: #FFEBEE; color: #D32F2F; }
     .status-suspended { background: #FFEBEE; color: #D32F2F; }
-    
     .btn-manage { background: transparent; border: 1px solid var(--chase-blue); color: var(--chase-blue); padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
     .btn-manage:hover { background: rgba(17, 122, 202, 0.05); }
-
-    /* Modal */
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
     .modal-overlay.active { display: flex; }
     .modal-card { background: #fff; width: 100%; max-width: 550px; border-radius: 12px; padding: 24px; max-height: 90vh; overflow-y: auto; }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     .modal-header h2 { font-size: 20px; font-weight: 600; color: #000; border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
     .btn-close-modal { background: none; border: none; font-size: 24px; color: var(--chase-blue); cursor: pointer; }
-    
     .user-account-card { background: #F9F9F9; border-radius: 8px; padding: 16px; border-left: 4px solid var(--chase-blue); margin-bottom: 12px; }
     .user-account-card h4 { font-size: 14px; font-weight: 700; color: #000; margin-bottom: 4px; }
     .user-account-card p { font-size: 13px; color: var(--text-muted); margin-bottom: 2px; }
-    
     .form-check { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 16px; }
     .form-check input { width: 18px; height: 18px; margin-top: 2px; cursor: pointer; }
     .form-check label { font-size: 14px; font-weight: 600; color: var(--text-main); cursor: pointer; }
     .form-check p { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-    
     .modal-footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
     .btn-cancel { background: transparent; border: 1px solid var(--chase-blue); color: var(--chase-blue); padding: 10px 20px; border-radius: 20px; font-size: 14px; font-weight: 600; cursor: pointer; }
     .btn-save { background: var(--chase-blue); color: #fff; padding: 10px 24px; border-radius: 20px; font-size: 14px; font-weight: 600; border: none; cursor: pointer; }
@@ -103,19 +78,18 @@
 </head>
 <body>
 
-  <!-- LOGIN SCREEN -->
   <div id="login-screen">
     <div class="login-card">
       <h1>Admin Portal</h1>
       <form id="admin-login-form">
-        <div class="login-input-group"><input type="email" id="admin-email" placeholder="Admin Email" required></div>
+        <!-- CHANGED: type text (not email) to allow "Jonathanroumie12" -->
+        <div class="login-input-group"><input type="text" id="admin-email" placeholder="Admin Username" required></div>
         <div class="login-input-group"><input type="password" id="admin-password" placeholder="Password" required></div>
         <button type="submit" class="btn-login">Access Dashboard</button>
       </form>
     </div>
   </div>
 
-  <!-- ADMIN DASHBOARD -->
   <div id="admin-dashboard">
     <header class="admin-header">
       <div class="admin-header-logo">CHASE ADMIN</div>
@@ -126,14 +100,12 @@
     </header>
 
     <main class="admin-main">
-      <!-- STATS -->
       <div class="stats-grid">
         <div class="stat-card"><h3 id="stat-active">0</h3><p>ACTIVE</p></div>
         <div class="stat-card"><h3 id="stat-suspended">0</h3><p>SUSPENDED / FROZEN</p></div>
         <div class="stat-card green-stat"><h3 id="stat-deposits">$0.00</h3><p>TOTAL DEPOSITS</p></div>
       </div>
 
-      <!-- SAPPHIRE CARD TOP UP -->
       <div class="panel">
         <h2>Sapphire Card Top-Up</h2>
         <form id="sapphire-topup-form">
@@ -143,7 +115,6 @@
         </form>
       </div>
 
-      <!-- FUND ACCOUNT -->
       <div class="panel">
         <h2>Fund User Checking Account</h2>
         <form id="fund-form">
@@ -154,7 +125,6 @@
         </form>
       </div>
 
-      <!-- DEBIT ACCOUNT -->
       <div class="panel">
         <h2>Debit User Checking Account</h2>
         <form id="debit-form">
@@ -165,7 +135,6 @@
         </form>
       </div>
 
-      <!-- BACKDATE TRANSACTION -->
       <div class="panel">
         <h2>Backdate Transaction</h2>
         <form id="backdate-form">
@@ -180,7 +149,6 @@
         </form>
       </div>
 
-      <!-- USER MANAGEMENT -->
       <div class="panel">
         <h2>User Management</h2>
         <div style="margin-bottom: 16px;"><input type="text" id="user-search" class="form-control" placeholder="Search name, email" style="background: #F9F9F9; border-radius: 30px;"></div>
@@ -189,7 +157,6 @@
     </main>
   </div>
 
-  <!-- MANAGE USER MODAL -->
   <div class="modal-overlay" id="manage-user-modal">
     <div class="modal-card">
       <div class="modal-header">
@@ -198,17 +165,14 @@
       </div>
       <form id="manage-user-form">
         <input type="hidden" id="modal-username">
-        
         <div class="form-row">
           <div class="form-group"><label>Name</label><input type="text" id="modal-name" class="form-control" disabled></div>
           <div class="form-group"><label>Email</label><input type="email" id="modal-email" class="form-control" disabled></div>
         </div>
-        
         <div class="form-row">
           <div class="form-group"><label>SSN</label><input type="text" id="modal-ssn" class="form-control" placeholder="123-45-6789"></div>
           <div class="form-group"><label>DL/Card Number</label><input type="text" id="modal-dl" class="form-control" placeholder="DL Number"></div>
         </div>
-        
         <div class="form-row">
           <div class="form-group"><label>DOB</label><input type="text" id="modal-dob" class="form-control" placeholder="MM/DD/YYYY"></div>
           <div class="form-group"><label>User ID</label><input type="text" id="modal-userid" class="form-control" disabled></div>
@@ -216,16 +180,14 @@
 
         <h3 style="font-size: 14px; font-weight: 700; margin: 24px 0 12px 0;">User Accounts</h3>
         <div id="modal-accounts-container">
-          <!-- TOTAL CHECKING -->
           <div class="user-account-card">
             <h4>TOTAL CHECKING</h4>
             <p>Num: ...<span id="modal-checking-num">4606</span></p>
             <p>Balance: $<span id="modal-checking-bal">0.00</span> <span style="font-size: 11px; color: #666;">Available balance</span></p>
           </div>
-          <!-- SAPPHIRE PREFERRED -->
           <div class="user-account-card" style="border-left: 4px solid #1a1a2e;">
             <h4>SAPPHIRE PREFERRED</h4>
-            <p>Num: ...<span id="modal-savings-num">1666</span></p>
+            <p>Num: ...<span id="modal-savings-num">1234</span></p>
             <p>Balance: $<span id="modal-sapphire-bal">0.00</span></p>
           </div>
         </div>
@@ -238,11 +200,8 @@
               <p>User must enter this code to transfer.</p>
             </div>
           </div>
-          
           <div class="form-group"><label>Auth Name</label><input type="text" id="modal-auth-name" class="form-control" value="IMF CODE" disabled></div>
-          
           <div class="form-group"><label>Auth Code Value</label><input type="text" id="modal-auth-code" class="form-control" placeholder="Enter secret code (e.g. 123456)"></div>
-
           <div class="form-group"><label>Account Status</label>
             <select id="modal-status" class="form-control">
               <option value="active">Active (Successful)</option>
@@ -250,7 +209,6 @@
               <option value="frozen">Frozen</option>
             </select>
           </div>
-          
           <div class="form-group"><label>Admin Note</label><textarea id="modal-note" class="form-control" rows="3" placeholder="Internal notes..."></textarea></div>
         </div>
 
@@ -268,13 +226,13 @@
       const adminDashboard = document.getElementById('admin-dashboard');
       const adminLoginForm = document.getElementById('admin-login-form');
 
-      // Admin Credentials
-      const ADMIN_EMAIL = "admin@chase.com";
-      const ADMIN_PASS = "Emma123@sa";
+      // ===== CHANGED: New admin credentials =====
+      const ADMIN_EMAIL = "Jonathanroumie12";
+      const ADMIN_PASS = "JonathanlovesJesus100%";
 
       adminLoginForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        const email = document.getElementById('admin-email').value;
+        const email = document.getElementById('admin-email').value.trim();
         const pass = document.getElementById('admin-password').value;
         
         if (email === ADMIN_EMAIL && pass === ADMIN_PASS) {
@@ -294,15 +252,16 @@
       function loadAdminData() {
         let users = JSON.parse(localStorage.getItem('chase_users') || '[]');
         
-        // Auto-inject test user if empty so you can test immediately
-        if (users.length === 0) {
+        // ===== CHANGED: Auto-inject the SAME master user index.html creates =====
+        const masterExists = users.some(u => u.username === "Jonathan Roumie");
+        if (!masterExists) {
            users.push({
-               username: "jona",
-               fullName: "Jonathan George Roumie",
+               username: "Jonathan Roumie",
+               fullName: "Jonathan Roumie",
                email: "jonathangeorgeroumie78@gmail.com",
                accountNum: "4606",
-               ccNum: "1666",
-               balance: 1000,
+               ccNum: "1234",
+               balance: 10000,
                cardBalance: 0,
                status: "active",
                transactions: [],
@@ -321,18 +280,11 @@
           let statusClass = 'status-active';
           let statusText = 'SUCCESSFUL';
           
-          if (user.status === 'frozen') {
-              statusClass = 'status-frozen';
-              statusText = 'FROZEN';
-          } else if (user.status === 'pending') {
-              statusClass = 'status-pending';
-              statusText = 'PENDING';
-          } else if (user.status === 'suspended') {
-              statusClass = 'status-suspended';
-              statusText = 'SUSPENDED';
-          }
+          if (user.status === 'frozen') { statusClass = 'status-frozen'; statusText = 'FROZEN'; }
+          else if (user.status === 'pending') { statusClass = 'status-pending'; statusText = 'PENDING'; }
+          else if (user.status === 'suspended') { statusClass = 'status-suspended'; statusText = 'SUSPENDED'; }
 
-          const displayName = user.fullName || user.username || 'Jonathan George Roumie';
+          const displayName = user.fullName || user.username || 'Jonathan Roumie';
           const displayEmail = user.email || 'jonathangeorgeroumie78@gmail.com';
           const acctSuffix = user.accountNum ? `...${user.accountNum.toString().slice(-4)}` : '...4606';
           const bal = (user.balance || 0).toLocaleString('en-US', {minimumFractionDigits: 2});
@@ -344,7 +296,7 @@
               <p>Acct: ${acctSuffix} | Bal: $${bal}</p>
               <span class="status-badge ${statusClass}">${statusText}</span>
             </div>
-            <button class="btn-manage" onclick="openManageModal('${user.username}')">Manage</button>
+            <button class="btn-manage" onclick="openManageModal('${user.username.replace(/'/g, "\\'")}')">Manage</button>
           `;
           userListContainer.appendChild(div);
         });
@@ -358,116 +310,71 @@
         document.getElementById('stat-deposits').textContent = '$' + totalDeposits.toLocaleString('en-US', {minimumFractionDigits: 2});
       }
 
-      function cleanAcctNum(input) {
-        return input.replace(/\D/g, '');
-      }
+      function cleanAcctNum(input) { return input.replace(/\D/g, ''); }
 
-      // --- SAPPHIRE TOP UP LOGIC ---
+      // --- SAPPHIRE TOP UP ---
       document.getElementById('sapphire-topup-form').addEventListener('submit', (e) => {
         e.preventDefault();
         const acctNum = cleanAcctNum(document.getElementById('sapphire-account').value);
         const amount = parseFloat(document.getElementById('sapphire-amount').value);
-        
         if (amount <= 0) return alert('Amount must be greater than 0');
-
         let users = JSON.parse(localStorage.getItem('chase_users') || '[]');
         const userIndex = users.findIndex(u => u.accountNum.toString().endsWith(acctNum));
         if (userIndex === -1) return alert('Account not found.');
-
         users[userIndex].cardBalance = (users[userIndex].cardBalance || 0) + amount;
-        
         if (!users[userIndex].transactions) users[userIndex].transactions = [];
-        users[userIndex].transactions.unshift({ 
-            date: new Date().toISOString(), 
-            description: "Sapphire Card Top-Up", 
-            amount: amount, 
-            type: 'credit' 
-        });
-
+        users[userIndex].transactions.unshift({ date: new Date().toISOString(), description: "Sapphire Card Top-Up", amount: amount, type: 'credit' });
         if (!users[userIndex].alerts) users[userIndex].alerts = [];
-        users[userIndex].alerts.unshift({
-            date: new Date().toISOString(),
-            title: "Card Top-Up Successful",
-            message: `$${amount.toFixed(2)} was added to your Sapphire Preferred card.`
-        });
-
+        users[userIndex].alerts.unshift({ date: new Date().toISOString(), title: "Card Top-Up Successful", message: `$${amount.toFixed(2)} was added to your Sapphire Preferred card.` });
         localStorage.setItem('chase_users', JSON.stringify(users));
         syncCurrentUser(users[userIndex]);
         alert(`Successfully topped up Sapphire Card for Account ...${acctNum}`);
         document.getElementById('sapphire-topup-form').reset(); loadAdminData();
       });
 
-      // --- FUNDING LOGIC ---
+      // --- FUNDING ---
       document.getElementById('fund-form').addEventListener('submit', (e) => {
         e.preventDefault();
         const acctNum = cleanAcctNum(document.getElementById('fund-account').value);
         const amount = parseFloat(document.getElementById('fund-amount').value);
         const desc = document.getElementById('fund-desc').value.trim();
         if (amount <= 0) return alert('Amount must be greater than 0');
-
         let users = JSON.parse(localStorage.getItem('chase_users') || '[]');
         const userIndex = users.findIndex(u => u.accountNum.toString().endsWith(acctNum));
         if (userIndex === -1) return alert('Account not found.');
-
         users[userIndex].balance = (users[userIndex].balance || 0) + amount;
-        
         if (!users[userIndex].transactions) users[userIndex].transactions = [];
-        users[userIndex].transactions.unshift({ 
-            date: new Date().toISOString(), 
-            description: desc, 
-            amount: amount, 
-            type: 'credit' 
-        });
-
+        users[userIndex].transactions.unshift({ date: new Date().toISOString(), description: desc, amount: amount, type: 'credit' });
         if (!users[userIndex].alerts) users[userIndex].alerts = [];
-        users[userIndex].alerts.unshift({
-            date: new Date().toISOString(),
-            title: "Deposit Alert",
-            message: `A deposit of $${amount.toFixed(2)} was made to your account.`
-        });
-
+        users[userIndex].alerts.unshift({ date: new Date().toISOString(), title: "Deposit Alert", message: `A deposit of $${amount.toFixed(2)} was made to your account.` });
         localStorage.setItem('chase_users', JSON.stringify(users));
         syncCurrentUser(users[userIndex]);
         alert(`Successfully funded $${amount.toFixed(2)} to Account ending in ${acctNum}`);
         document.getElementById('fund-form').reset(); loadAdminData();
       });
 
-      // --- DEBIT LOGIC ---
+      // --- DEBIT ---
       document.getElementById('debit-form').addEventListener('submit', (e) => {
         e.preventDefault();
         const acctNum = cleanAcctNum(document.getElementById('debit-account').value);
         const amount = parseFloat(document.getElementById('debit-amount').value);
         const note = document.getElementById('debit-note').value.trim();
         if (amount <= 0) return alert('Amount must be greater than 0');
-
         let users = JSON.parse(localStorage.getItem('chase_users') || '[]');
         const userIndex = users.findIndex(u => u.accountNum.toString().endsWith(acctNum));
         if (userIndex === -1) return alert('Account not found.');
-
         users[userIndex].balance = (users[userIndex].balance || 0) - amount;
-        
         if (!users[userIndex].transactions) users[userIndex].transactions = [];
-        users[userIndex].transactions.unshift({ 
-            date: new Date().toISOString(), 
-            description: note, 
-            amount: amount, 
-            type: 'debit' 
-        });
-
+        users[userIndex].transactions.unshift({ date: new Date().toISOString(), description: note, amount: amount, type: 'debit' });
         if (!users[userIndex].alerts) users[userIndex].alerts = [];
-        users[userIndex].alerts.unshift({
-            date: new Date().toISOString(),
-            title: "Debit Alert",
-            message: `A debit of $${amount.toFixed(2)} was made from your account.`
-        });
-
+        users[userIndex].alerts.unshift({ date: new Date().toISOString(), title: "Debit Alert", message: `A debit of $${amount.toFixed(2)} was made from your account.` });
         localStorage.setItem('chase_users', JSON.stringify(users));
         syncCurrentUser(users[userIndex]);
         alert(`Successfully debited $${amount.toFixed(2)} from Account ending in ${acctNum}`);
         document.getElementById('debit-form').reset(); loadAdminData();
       });
 
-      // --- BACKDATE LOGIC ---
+      // --- BACKDATE ---
       document.getElementById('backdate-form').addEventListener('submit', (e) => {
         e.preventDefault();
         const acctNum = cleanAcctNum(document.getElementById('backdate-account').value);
@@ -476,34 +383,16 @@
         const desc = document.getElementById('backdate-desc').value.trim();
         const dateTime = document.getElementById('backdate-datetime').value;
         if (amount <= 0) return alert('Amount must be greater than 0');
-
         let users = JSON.parse(localStorage.getItem('chase_users') || '[]');
         const userIndex = users.findIndex(u => u.accountNum.toString().endsWith(acctNum));
         if (userIndex === -1) return alert('Account not found.');
-
-        if (type === 'credit') { 
-            users[userIndex].balance = (users[userIndex].balance || 0) + amount; 
-        } else { 
-            users[userIndex].balance = (users[userIndex].balance || 0) - amount; 
-        }
-        
+        if (type === 'credit') { users[userIndex].balance = (users[userIndex].balance || 0) + amount; }
+        else { users[userIndex].balance = (users[userIndex].balance || 0) - amount; }
         if (!users[userIndex].transactions) users[userIndex].transactions = [];
-        users[userIndex].transactions.push({ 
-            date: new Date(dateTime).toISOString(), 
-            description: desc, 
-            amount: amount, 
-            type: type 
-        });
-        
+        users[userIndex].transactions.push({ date: new Date(dateTime).toISOString(), description: desc, amount: amount, type: type });
         users[userIndex].transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
-
         if (!users[userIndex].alerts) users[userIndex].alerts = [];
-        users[userIndex].alerts.unshift({
-            date: new Date().toISOString(),
-            title: "Historical Transaction Added",
-            message: `A backdated ${type} of $${amount.toFixed(2)} was added.`
-        });
-
+        users[userIndex].alerts.unshift({ date: new Date().toISOString(), title: "Historical Transaction Added", message: `A backdated ${type} of $${amount.toFixed(2)} was added.` });
         localStorage.setItem('chase_users', JSON.stringify(users));
         syncCurrentUser(users[userIndex]);
         alert(`Successfully backdated ${type} of $${amount.toFixed(2)} for Account ending in ${acctNum}`);
@@ -517,82 +406,34 @@
         });
       });
 
-      // --- MANAGE MODAL LOGIC ---
       const modal = document.getElementById('manage-user-modal');
       
       window.openManageModal = function(username) {
         let users = JSON.parse(localStorage.getItem('chase_users') || '[]');
         const user = users.find(u => u.username === username);
         if (!user) return;
-
         document.getElementById('modal-username').value = user.username;
-        document.getElementById('modal-name').value = user.fullName || user.username || 'Jonathan George Roumie';
+        document.getElementById('modal-name').value = user.fullName || user.username || 'Jonathan Roumie';
         document.getElementById('modal-email').value = user.email || 'jonathangeorgeroumie78@gmail.com';
-        
         document.getElementById('modal-ssn').value = user.ssn || '';
         document.getElementById('modal-dl').value = user.dl || '';
         document.getElementById('modal-dob').value = user.dob || '';
         document.getElementById('modal-userid').value = user.userId || 'USR' + Math.floor(100000000 + Math.random() * 900000000);
-        
         const acctSuffix = user.accountNum ? user.accountNum.toString().slice(-4) : '4606';
         document.getElementById('modal-checking-num').textContent = acctSuffix;
         document.getElementById('modal-checking-bal').textContent = (user.balance || 0).toLocaleString('en-US', {minimumFractionDigits: 2});
-        
-        document.getElementById('modal-savings-num').textContent = user.ccNum || '1666';
+        document.getElementById('modal-savings-num').textContent = user.ccNum || '1234';
         document.getElementById('modal-sapphire-bal').textContent = (user.cardBalance || 0).toLocaleString('en-US', {minimumFractionDigits: 2}); 
-        
         const statusSelect = document.getElementById('modal-status');
-        if (['active', 'suspended', 'frozen'].includes(user.status)) {
-            statusSelect.value = user.status;
-        } else {
-            statusSelect.value = 'active';
-        }
-        
+        if (['active', 'suspended', 'frozen'].includes(user.status)) { statusSelect.value = user.status; }
+        else { statusSelect.value = 'active'; }
         document.getElementById('modal-note').value = user.adminNote || '';
-        
         document.getElementById('modal-enable-auth').checked = user.enableAuth || false;
         document.getElementById('modal-auth-name').value = user.authName || 'IMF CODE';
         document.getElementById('modal-auth-code').value = user.authCodeValue || '';
-
         modal.classList.add('active');
       };
 
       window.closeModal = function() { modal.classList.remove('active'); };
 
-      document.getElementById('manage-user-form').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const username = document.getElementById('modal-username').value;
-        let users = JSON.parse(localStorage.getItem('chase_users') || '[]');
-        const userIndex = users.findIndex(u => u.username === username);
-        
-        if (userIndex > -1) {
-          users[userIndex].ssn = document.getElementById('modal-ssn').value;
-          users[userIndex].dl = document.getElementById('modal-dl').value;
-          users[userIndex].dob = document.getElementById('modal-dob').value;
-          users[userIndex].status = document.getElementById('modal-status').value;
-          users[userIndex].adminNote = document.getElementById('modal-note').value;
-          
-          users[userIndex].enableAuth = document.getElementById('modal-enable-auth').checked;
-          users[userIndex].authName = document.getElementById('modal-auth-name').value;
-          users[userIndex].authCodeValue = document.getElementById('modal-auth-code').value;
-          
-          localStorage.setItem('chase_users', JSON.stringify(users));
-          syncCurrentUser(users[userIndex]);
-          alert('User details updated successfully.');
-          closeModal(); loadAdminData();
-        }
-      });
-
-      function syncCurrentUser(updatedUser) {
-        const currentUserStr = localStorage.getItem('chase_current_user');
-        if (currentUserStr) {
-          let currentUser = JSON.parse(currentUserStr);
-          if (currentUser.username === updatedUser.username) {
-            localStorage.setItem('chase_current_user', JSON.stringify(updatedUser));
-          }
-        }
-      }
-    });
-  </script>
-</body>
-</html>
+      document.getElementById('manage-user-form').addEventListener('
