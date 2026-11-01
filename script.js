@@ -1,238 +1,329 @@
-const express = require('express');
-const cors = require('cors');
-const fs = require('fs');
-const path = require('path');
-const crypto = require('crypto');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chase Admin Portal</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
 
-const app = express();
-const PORT = process.env.PORT || 3000;
-const DATA_FILE = path.join(__dirname, 'data.json');
+        body {
+            background-color: #f4f5f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
 
-app.use(cors());
-app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+        /* --- Login Screen --- */
+        #login-screen {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            padding: 40px 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
 
-/* ============================================================
-   MASTER CREDENTIALS  ←  EDIT HERE
-   ============================================================ */
-const MASTER_USERNAME   = 'Jonathan12';
-const MASTER_PASSWORD   = 'JonathanlovesJesus100%';
-const MASTER_EMAILS     = ['jonathan.roumie@example.com', 'jonathangeorgeroumie78@gmail.com'];
+        .header-logo {
+            background-color: #0b2b5e;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 20px;
+        }
 
-const ADMIN_USERNAME    = 'Jonathanroumie12';
-const ADMIN_PASSWORD    = 'JonathanlovesJesus100%';
-/* ============================================================ */
+        .input-group {
+            margin-bottom: 15px;
+        }
 
-/* ============================================================
-   STORAGE
-   ============================================================ */
-let db = { users: [], admin: { username: ADMIN_USERNAME, password: ADMIN_PASSWORD } };
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #333;
+        }
 
-function loadDB() {
-  try {
-    if (fs.existsSync(DATA_FILE)) {
-      const raw = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
-      if (raw && Array.isArray(raw.users)) db.users = raw.users;
-    }
-  } catch (e) { console.error('DB load failed:', e.message); }
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+        }
 
-  if (!db.users.some(u => u.username === 'Jonathan Roumie')) {
-    db.users.push({
-      username: 'Jonathan Roumie',
-      fullName: 'Jonathan Roumie',
-      email: 'jonathan.roumie@example.com',
-      accountNum: '4606',
-      ccNum: '1234',
-      phone: '(555) 123-4567',
-      address: '123 Main St, New York, NY',
-      balance: 10000,
-      cardBalance: 0,
-      status: 'active',
-      transactions: [],
-      alerts: []
-    });
-  }
-  saveDB();
-}
-function saveDB() { fs.writeFileSync(DATA_FILE, JSON.stringify(db, null, 2)); }
-loadDB();
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background-color: #1f4fb2;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
 
-/* ============================================================
-   TOKENS (in-memory)
-   ============================================================ */
-const tokens = new Map();
+        .btn:hover {
+            background-color: #163c8a;
+        }
 
-function issueToken(username, type) {
-  const t = crypto.randomBytes(24).toString('hex');
-  tokens.set(t, { username, type, expires: Date.now() + 8 * 60 * 60 * 1000 });
-  return t;
-}
+        .error {
+            color: red;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
+        }
 
-function auth(type) {
-  return (req, res, next) => {
-    const h = req.headers.authorization || '';
-    const t = h.startsWith('Bearer ') ? h.slice(7) : null;
-    const entry = t && tokens.get(t);
-    if (!entry || entry.expires < Date.now()) return res.status(401).json({ error: 'Unauthorized' });
-    if (type && entry.type !== type) return res.status(403).json({ error: 'Forbidden' });
-    req.auth = entry;
-    next();
-  };
-}
+        /* --- Dashboard --- */
+        #dashboard-screen {
+            display: none;
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            text-align: center;
+        }
 
-/* ============================================================
-   LOGIN — USER
-   ============================================================ */
-app.post('/api/auth/login', (req, res) => {
-  const { username, password } = req.body || {};
-  if (!username || !password) return res.status(400).json({ error: 'Missing credentials' });
+        /* --- Receipt Modal (Exact Match to Image) --- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: flex-end; /* Aligns to bottom */
+        }
 
-  const u = String(username).trim().toLowerCase();
-  const p = String(password);
+        .receipt-modal {
+            background: white;
+            width: 100%;
+            max-width: 500px;
+            border-radius: 20px 20px 0 0;
+            padding: 30px 20px;
+            position: relative;
+            animation: slideUp 0.3s ease-out;
+        }
 
-  // Master login — matches username OR email OR any email if password is master
-  const isMasterUser =
-    (u === MASTER_USERNAME.toLowerCase()
-      || u === 'jonathan roumie'
-      || MASTER_EMAILS.includes(u)
-      || u.includes('@'))
-    && p === MASTER_PASSWORD;
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
 
-  if (isMasterUser) {
-    const master = db.users.find(x => x.username === 'Jonathan Roumie');
-    if (master.status === 'frozen' || master.status === 'suspended')
-      return res.status(403).json({ error: `Account ${master.status}. Contact support.` });
+        .success-icon {
+            width: 60px;
+            height: 60px;
+            background-color: #388e3c;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 20px auto;
+        }
 
-    const token = issueToken(master.username, 'user');
-    return res.json({ token, user: master });
-  }
+        .success-icon svg {
+            width: 35px;
+            height: 35px;
+            fill: none;
+            stroke: white;
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
 
-  // Regular users
-  const found = db.users.find(x => x.username.toLowerCase() === u);
-  if (!found || found.password !== p) {
-    return res.status(401).json({ error: 'Invalid username or password' });
-  }
-  if (found.status === 'frozen' || found.status === 'suspended')
-    return res.status(403).json({ error: `Account ${found.status}. Contact support.` });
+        .receipt-modal h2 {
+            text-align: center;
+            font-size: 24px;
+            color: #2c2c2c;
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
 
-  const token = issueToken(found.username, 'user');
-  res.json({ token, user: found });
-});
+        .receipt-modal .amount {
+            text-align: center;
+            font-size: 40px;
+            font-weight: 800;
+            color: #2c2c2c;
+            margin-bottom: 15px;
+            letter-spacing: -1px;
+        }
 
-/* ============================================================
-   LOGIN — ADMIN
-   ============================================================ */
-app.post('/api/auth/admin-login', (req, res) => {
-  const { username, password } = req.body || {};
-  if (username === db.admin.username && password === db.admin.password) {
-    const token = issueToken('admin', 'admin');
-    return res.json({ token });
-  }
-  res.status(401).json({ error: 'Invalid admin credentials' });
-});
+        .receipt-modal .status {
+            text-align: center;
+            color: #6b6b6b;
+            font-size: 16px;
+            margin-bottom: 25px;
+        }
 
-/* ============================================================
-   USER ENDPOINTS
-   ============================================================ */
-app.get('/api/user/me', auth('user'), (req, res) => {
-  const user = db.users.find(u => u.username === req.auth.username);
-  if (!user) return res.status(404).json({ error: 'Not found' });
-  res.json({ user });
-});
+        .details-box {
+            background-color: #f8f8fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
 
-app.post('/api/user/transfer', auth('user'), (req, res) => {
-  const { amount, recipient, type } = req.body || {};
-  const amt = Number(amount);
-  if (!amt || amt <= 0) return res.status(400).json({ error: 'Invalid amount' });
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #eaeaea;
+            font-size: 15px;
+            color: #4a4a4a;
+        }
 
-  const user = db.users.find(u => u.username === req.auth.username);
-  if (user.status === 'frozen' || user.status === 'suspended')
-    return res.status(403).json({ error: 'Account restricted', restricted: true });
+        .detail-row:last-child {
+            border-bottom: none;
+        }
 
-  if (amt > (user.balance || 0)) return res.status(400).json({ error: 'Insufficient funds' });
+        .detail-row span:last-child {
+            font-weight: 600;
+            color: #2c2c2c;
+        }
 
-  user.balance = (user.balance || 0) - amt;
-  const now = new Date().toISOString();
-  user.transactions = user.transactions || [];
-  user.transactions.unshift({ date: now, description: `${recipient} - ${type}`, amount: amt, type: 'debit' });
-  user.alerts = user.alerts || [];
-  user.alerts.unshift({ date: now, title: 'Transaction Alert', message: `A ${type} of $${amt.toFixed(2)} was sent to ${recipient}.` });
-  saveDB();
+        .detail-row .sent-to {
+            text-decoration: underline;
+            font-weight: 800;
+            color: #1a1a1a;
+        }
 
-  res.json({ user, success: true });
-});
+        .done-btn {
+            width: 100%;
+            padding: 16px;
+            background-color: #1f4fb2;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+        }
 
-app.put('/api/user/profile', auth('user'), (req, res) => {
-  const user = db.users.find(u => u.username === req.auth.username);
-  if (req.body.phone !== undefined) user.phone = req.body.phone;
-  if (req.body.address !== undefined) user.address = req.body.address;
-  saveDB();
-  res.json({ user });
-});
+        .done-btn:hover {
+            background-color: #163c8a;
+        }
 
-/* ============================================================
-   ADMIN ENDPOINTS
-   ============================================================ */
-app.get('/api/admin/users', auth('admin'), (req, res) => {
-  res.json({ users: db.users });
-});
+    </style>
+</head>
+<body>
 
-app.post('/api/admin/fund', auth('admin'), (req, res) => {
-  const { accountNum, amount, description } = req.body || {};
-  const amt = Number(amount);
-  if (!amt || amt <= 0) return res.status(400).json({ error: 'Invalid amount' });
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen">
+        <div class="header-logo">Chase Bank Admin</div>
+        <div class="input-group">
+            <label>Admin Email</label>
+            <input type="email" id="username" placeholder="Enter admin email">
+        </div>
+        <div class="input-group">
+            <label>Password</label>
+            <input type="password" id="password" placeholder="Enter password">
+        </div>
+        <button class="btn" onclick="login()">Log In</button>
+        <div id="login-error" class="error">Invalid Credentials</div>
+    </div>
 
-  const user = db.users.find(u => String(u.accountNum).endsWith(String(accountNum)));
-  if (!user) return res.status(404).json({ error: 'Account not found' });
+    <!-- DASHBOARD -->
+    <div id="dashboard-screen">
+        <h2 style="margin-bottom: 20px; color: #0b2b5e;">Admin Dashboard</h2>
+        <p style="margin-bottom: 20px; color: #666;">Welcome back, Admin.</p>
+        <button class="btn" onclick="initiateTransfer()">Initiate Transfer</button>
+    </div>
 
-  user.balance = (user.balance || 0) + amt;
-  const now = new Date().toISOString();
-  user.transactions = user.transactions || [];
-  user.transactions.unshift({ date: now, description: description || 'Admin Deposit', amount: amt, type: 'credit' });
-  user.alerts = user.alerts || [];
-  user.alerts.unshift({ date: now, title: 'Deposit Alert', message: `A deposit of $${amt.toFixed(2)} was made.` });
-  saveDB();
-  res.json({ user });
-});
+    <!-- RECEIPT MODAL (Matches your image) -->
+    <div class="modal-overlay" id="receipt-modal">
+        <div class="receipt-modal">
+            
+            <div class="success-icon">
+                <svg viewBox="0 0 24 24">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+            </div>
 
-app.post('/api/admin/debit', auth('admin'), (req, res) => {
-  const { accountNum, amount, note } = req.body || {};
-  const amt = Number(amount);
-  if (!amt || amt <= 0) return res.status(400).json({ error: 'Invalid amount' });
+            <h2>Transfer Successful</h2>
+            <div class="amount">$50000.00</div>
+            <div class="status">Transaction Completed</div>
 
-  const user = db.users.find(u => String(u.accountNum).endsWith(String(accountNum)));
-  if (!user) return res.status(404).json({ error: 'Account not found' });
+            <div class="details-box">
+                <div class="detail-row">
+                    <span>Sent To:</span>
+                    <span class="sent-to">9283726262</span>
+                </div>
+                <div class="detail-row">
+                    <span>Date:</span>
+                    <span id="receipt-date"></span>
+                </div>
+                <div class="detail-row">
+                    <span>Ref ID:</span>
+                    <span id="receipt-ref"></span>
+                </div>
+            </div>
 
-  user.balance = (user.balance || 0) - amt;
-  const now = new Date().toISOString();
-  user.transactions = user.transactions || [];
-  user.transactions.unshift({ date: now, description: note || 'Admin Debit', amount: amt, type: 'debit' });
-  saveDB();
-  res.json({ user });
-});
+            <button class="done-btn" onclick="closeReceipt()">Done</button>
+        </div>
+    </div>
 
-app.post('/api/admin/topup', auth('admin'), (req, res) => {
-  const { accountNum, amount } = req.body || {};
-  const amt = Number(amount);
-  if (!amt || amt <= 0) return res.status(400).json({ error: 'Invalid amount' });
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // --- Hardcoded Admin Credentials ---
+        const ADMIN_EMAIL = "admin@chase.com";
+        const ADMIN_PASS = "Emma123@sa";
 
-  const user = db.users.find(u => String(u.accountNum).endsWith(String(accountNum)));
-  if (!user) return res.status(404).json({ error: 'Account not found' });
+        function login() {
+            const user = document.getElementById('username').value.trim();
+            const pass = document.getElementById('password').value.trim();
+            const errorDiv = document.getElementById('login-error');
 
-  user.cardBalance = (user.cardBalance || 0) + amt;
-  saveDB();
-  res.json({ user });
-});
+            if (user === ADMIN_EMAIL && pass === ADMIN_PASS) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('dashboard-screen').style.display = 'block';
+                errorDiv.style.display = 'none';
+            } else {
+                errorDiv.style.display = 'block';
+            }
+        }
 
-app.put('/api/admin/users/:username', auth('admin'), (req, res) => {
-  const user = db.users.find(u => u.username === decodeURIComponent(req.params.username));
-  if (!user) return res.status(404).json({ error: 'Not found' });
+        function initiateTransfer() {
+            // Generate current date formatted exactly like the image (12/4/2025, 12:36:56 AM)
+            const now = new Date();
+            const dateStr = now.toLocaleString('en-US', {
+                month: 'numeric',
+                day: 'numeric',
+                year: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric',
+                second: 'numeric',
+                hour12: true
+            });
 
-  ['status', 'ssn', 'dl', 'dob', 'adminNote', 'enableAuth', 'authName', 'authCodeValue'].forEach(k => {
-    if (req.body[k] !== undefined) user[k] = req.body[k];
-  });
-  saveDB();
-  res.json({ user });
-});
+            // Generate a random Reference ID (e.g., Ref: 910229159)
+            const randomRef = Math.floor(Math.random() * 900000000) + 100000000;
 
-app.listen(PORT, () => console.log(`✅ Chase demo running → http://localhost:${PORT}`))
+            // Inject the dynamic data into the receipt
+            document.getElementById('receipt-date').innerText = dateStr;
+            document.getElementById('receipt-ref').innerText = "Ref: " + randomRef;
+
+            // Show the modal
+            document.getElementById('receipt-modal').style.display = 'flex';
+        }
+
+        function closeReceipt() {
+            document.getElementById('receipt-modal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
