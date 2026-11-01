@@ -20,7 +20,7 @@
     :root {
       --chase-blue: #117ACA; --chase-blue-dark: #0D5F9E; --chase-header-blue: #004b87;
       --text-dark: #211E1E; --text-grey: #5A5A5A; --border-light: #E5E5E5;
-      --bg-light: #F4F6F9; --bg-dashboard: #f0f2f5; --green-btn: #008A05;
+      --bg-light: #F4F6F9; --bg-dashboard: #f4f5f7; --green-btn: #008A05;
       --green-btn-hover: #006B04; --error-red: #d32f2f;
     }
 
@@ -142,10 +142,10 @@
     .toggle-password { color: var(--chase-blue); font-weight: 600; font-size: 15px; cursor: pointer; padding: 4px; user-select: none; }
     .btn-auth { width: 100%; background: var(--chase-blue); color: #fff; padding: 14px; border-radius: 6px; font-size: 16px; font-weight: 600; border: none; cursor: pointer; transition: background 0.2s; margin-bottom: 16px; }
     .btn-auth:hover { background: var(--chase-blue-dark); }
-    .divider { display: flex; align-items: center; text-align: center; margin: 20px 0; color: #555; font-size: 14px; }
-    .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--chase-blue); }
-    .divider::before { margin-right: 15px; }
-    .divider::after { margin-left: 15px; }
+    .divider { display: flex; align-items: center; text-align: center; margin: 20px 0; color: #555; font-size: 14="px; }
+    .divider::before, .divcurrentider::after { content: ''; flex: 1;Color border-bottom: 1px solid var(--chase-blue); }
+"    stroke .divider::before { margin-right: 15px; }
+    .div-widthider::after { margin-left: 15px; }
     .btn-passwordless { width: 100%; background: #EBF2FA; color: var(--chase-blue); padding: 14px; border-radius: 6px; font-size: 16px; font-weight: 600; border: none; cursor: pointer; transition: background 0.2s; margin-bottom: 24px; }
     .btn-passwordless:hover { background: #dcE7f5; }
     .auth-links { display: flex; flex-direction: column; gap: 16px; }
@@ -155,54 +155,66 @@
     .error-msg { color: var(--error-red); font-size: 13px; margin-top: -10px; margin-bottom: 16px; display: none; font-weight: 600; }
 
     /* =========================================================
-       DASHBOARD STYLES
+       DASHBOARD STYLES (Matching Image 1)
        ========================================================= */
-    .dash-header { background-color: var(--chase-header-blue); color: #fff; padding: 16px 20px 24px; position: sticky; top: 0; z-index: 100; }
-    .dash-top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-    .dash-top-bar .menu-btn { background: none; border: none; color: #fff; cursor: pointer; }
-    .dash-top-bar .menu-btn svg { width: 24px; height: 24px; fill: #fff; }
+    .dash-header { background-color: var(--bg-dashboard); color: var(--text-dark); padding: 16px 20px 10px; position: sticky; top: 0; z-index: 100; }
+    .dash-top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .dash-top-bar .menu-btn { background: none; border: none; color: var(--text-dark); cursor: pointer; }
+    .dash-top-bar .menu-btn svg { width: 24px; height: 24px; fill: var(--text-dark); }
     .dash-top-icons { display: flex; gap: 16px; }
-    .dash-top-icons svg { width: 24px; height: 24px; fill: none; stroke: #fff; stroke-width: 2; cursor: pointer; }
-    .dash-greeting { font-size: 18px; font-weight: 500; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
-    .dash-greeting .divider-bar { color: rgba(255, 255, 255, 0.5); font-weight: 300; }
-    .dash-greeting .date-text { font-weight: 400; font-size: 15px; color: rgba(255, 255, 255, 0.9); }
-    .action-pills { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; }
+    .dash-top-icons svg { width: 24px; height: 24px; fill: none; stroke: var(--text-dark); stroke-width: 1.5; cursor: pointer; }
+    .dash-greeting { font-size: 26px; font-weight: 400; margin-bottom: 4px; display: flex; flex-direction: column; gap: 2px; color: #000; }
+    .dash-greeting .date-text { font-weight: 400; font-size: 14px; color: #666; }
+    
+    .action-pills { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 16px; padding-top: 16px; scrollbar-width: none; }
     .action-pills::-webkit-scrollbar { display: none; }
-    .pill-btn { background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3); color: #fff; padding: 10px 20px; border-radius: 24px; font-size: 15px; white-space: nowrap; cursor: pointer; transition: background 0.2s; }
-    .pill-btn:hover { background: rgba(255, 255, 255, 0.25); }
-    .dash-main { flex: 1; padding: 20px; padding-bottom: 100px; overflow-y: auto; }
+    .pill-btn { display: flex; align-items: center; gap: 6px; background: #ffffff; border: 1px solid #d1d5db; color: var(--chase-header-blue); padding: 10px 16px; border-radius: 24px; font-size: 14px; font-weight: 600; white-space: nowrap; cursor: pointer; transition: background 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
+    .pill-btn:hover { background: #f9fafb; }
+    .pill-btn svg { width: 16px; height: 16px; fill: var(--chase-header-blue); }
+    
+    .dash-main { flex: 1; padding: 0 20px 100px; overflow-y: auto; }
 
-    .snapshot-card { background: #fff; border-radius: 8px; padding: 16px; display: flex; align-items: center; gap: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 24px; cursor: pointer; position: relative; }
-    .snapshot-icon svg { width: 32px; height: 32px; fill: var(--chase-header-blue); }
+    .snapshot-card { background: #fff; border-radius: 8px; padding: 16px; display: flex; align-items: center; gap: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 24px; cursor: pointer; position: relative; border: 1px solid #e5e7eb; }
+    .snapshot-icon { width: 40px; height: 40px; background: #eef2ff; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .snapshot-icon svg { width: 24px; height: 24px; fill: var(--chase-header-blue); }
     .snapshot-content { flex: 1; }
     .snapshot-content h4 { font-size: 16px; font-weight: 600; color: #000; display: flex; align-items: center; gap: 8px; }
     .snapshot-content h4 .tag { background: #e8e8e8; font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: 500; color: #555; }
     .snapshot-content p { font-size: 14px; color: #333; margin-top: 2px; }
-    .snapshot-card .chevron { color: #ccc; }
+    .snapshot-card .chevron { color: #999; }
     .snapshot-card .chevron svg { width: 20px; height: 20px; fill: #999; }
 
     .accounts-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-    .accounts-header h3 { font-size: 20px; font-weight: 500; color: #000; }
+    .accounts-header h3 { font-size: 18px; font-weight: 500; color: #000; }
     .accounts-header .options-btn { background: none; border: none; cursor: pointer; font-size: 20px; font-weight: bold; color: #555; letter-spacing: 2px; }
 
-    .account-card { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 24px; }
-    .account-card-header { background-color: #003366; color: #fff; padding: 12px 16px; font-size: 15px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+    .account-card { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 24px; border: 1px solid #e5e7eb; }
+    .account-card-header { background-color: #0b2e59; color: #fff; padding: 12px 16px; font-size: 15px; font-weight: 500; display: flex; justify-content: space-between; align-items: center; }
     .account-card-body { padding: 16px; }
-    .account-name-row { display: flex; align-items: center; gap: 8px; font-size: 16px; color: #333; margin-bottom: 16px; font-weight: 400; }
+    .account-name-row { display: flex; align-items: center; justify-content: space-between; font-size: 14px; color: #555; margin-bottom: 12px; font-weight: 400; letter-spacing: 0.5px; }
     .account-balance { text-align: right; }
     .account-balance .amount { font-size: 32px; font-weight: 400; color: #000; line-height: 1; display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
-    .account-balance .label { font-size: 13px; color: #666; margin-top: 4px; }
+    .account-balance .label { font-size: 12px; color: #666; margin-top: 4px; }
+    .link-external-row { display: flex; justify-content: space-between; align-items: center; padding: 16px; border-top: 1px solid #eee; cursor: pointer; }
+    .link-external-row span { font-size: 15px; color: #333; }
+    .link-external-row svg { width: 18px; height: 18px; fill: #999; }
 
     .cc-image-container { cursor: pointer; }
     .cc-image-container img { width: 90px; height: auto; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); transition: transform 0.2s; }
     .cc-image-container:hover img { transform: scale(1.05); }
-    .cc-autopay-msg { display: flex; align-items: flex-start; gap: 8px; margin-top: 24px; padding-top: 16px; border-top: 1px solid #eee; font-size: 14px; color: #333; line-height: 1.4; }
-    .cc-autopay-msg svg { width: 18px; height: 18px; fill: #4CAF50; flex-shrink: 0; margin-top: 2px; }
+    .cc-autopay-msg { display: flex; align-items: flex-start; gap: 8px; margin-top: 24px; padding-top: 16px; border-top: 1px solid #eee; font-size: 13px; color: #333; line-height: 1.4; }
+    .cc-autopay-msg svg { width: 16px; height: 16px; fill: #4CAF50; flex-shrink: 0; margin-top: 2px; }
 
-    .open-account-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; background: transparent; border: 2px dashed var(--chase-header-blue); color: var(--chase-header-blue); padding: 16px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; margin-bottom: 24px; background-color: rgba(255,255,255,0.5); }
-    .open-account-btn svg { width: 20px; height: 20px; fill: var(--chase-header-blue); }
+    /* Open an account section matching image 1 */
+    .open-account-section { background: #fff; border-radius: 8px; padding: 20px 16px; margin-bottom: 24px; border: 1px solid #e5e7eb; }
+    .open-account-section h3 { font-size: 16px; font-weight: 500; color: #333; margin-bottom: 16px; }
+    .open-account-icons { display: flex; justify-content: space-between; }
+    .open-account-icon { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; cursor: pointer; width: 23%; }
+    .open-account-icon .icon-circle { width: 44px; height: 44px; background: #eef2ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .open-account-icon .icon-circle svg { width: 22px; height: 22px; fill: var(--chase-header-blue); }
+    .open-account-icon span { font-size: 12px; font-weight: 500; color: #333; line-height: 1.2; }
 
-    .list-container { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .list-container { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #e5e7eb; }
     .list-item { display: flex; align-items: center; gap: 16px; padding: 20px 16px; border-bottom: 1px solid #eee; cursor: pointer; transition: background 0.2s; }
     .list-item:hover { background: #f9f9f9; }
     .list-item:last-child { border-bottom: none; }
@@ -218,6 +230,7 @@
     .transaction-amount.debit { color: #d32f2f; }
     .transaction-date { font-size: 12px; color: #888; }
 
+    /* Bottom Nav matching Image 1 */
     .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #ffffff; display: flex; justify-content: space-around; align-items: center; padding: 8px 0 calc(8px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid #e8e8e8; box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.04); z-index: 300; }
     .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #8a8a8a; font-size: 11px; font-weight: 400; cursor: pointer; transition: color 0.2s ease; padding: 4px 12px; border-radius: 8px; }
     .nav-item:hover { color: var(--chase-header-blue); background: rgba(0, 75, 135, 0.04); }
@@ -226,8 +239,7 @@
     .nav-item svg { width: 24px; height: 24px; fill: #8a8a8a; transition: fill 0.2s ease; }
     .nav-item.active svg, .nav-item:hover svg { fill: var(--chase-header-blue); }
 
-    .fab { position: fixed; bottom: 70px; right: 20px; width: 56px; height: 56px; background: #333; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; z-index: 301; }
-    .fab svg { width: 28px; height: 28px; fill: #fff; }
+    /* Removed FAB CSS */
 
     /* =========================================================
        SUB-VIEWS (BILLS, PAY, PROFILE, ALERTS, VIRTUAL CARD)
@@ -242,7 +254,6 @@
     #dashboard-page.show-external #external-transfer-view { display: flex; }
     #dashboard-page.show-zelle #zelle-transfer-view { display: flex; }
     #dashboard-page.show-wire #wire-transfer-view { display: flex; }
-    #dashboard-page.show-sapphire #sapphire-transfer-view { display: flex; }
     #dashboard-page.show-alerts #alerts-view { display: flex; }
     #dashboard-page.show-vcard #virtual-card-view { display: flex; }
 
@@ -260,10 +271,11 @@
     .empty-state { text-align: center; color: #666; font-size: 16px; margin-top: 40px; }
 
     .pay-content { flex: 1; padding: 20px; }
-    .icon-bank { fill: #005EB8 !important; }
+    
+    /* Pay & Transfer Icons matching Image 2 */
+    .icon-bank { fill: #004b87 !important; }
     .icon-zelle { fill: #6D1ED4 !important; }
-    .icon-wire { fill: #005EB8 !important; }
-    .icon-sapphire { fill: #1a1a2e !important; }
+    .icon-wire { fill: #004b87 !important; }
 
     .transfer-view-container { display: flex; flex-direction: column; min-height: 100vh; background-color: rgba(0, 0, 0, 0.4); justify-content: center; align-items: center; padding: 20px; }
     .transfer-card { background: #fff; border-radius: 16px; padding: 24px; width: 100%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); position: relative; }
@@ -362,7 +374,7 @@
     }
     .btn-done:hover { background: var(--chase-blue-dark); }
 
-    @media (max-width: 480px) { .dash-greeting { font-size: 16px; flex-wrap: wrap; } .dash-greeting .date-text { font-size: 14px; } }
+    @media (max-width: 480px) { .dash-greeting { font-size: 22px; } .dash-greeting .date-text { font-size: 13px; } }
   </style>
 </head>
 <body>
@@ -471,7 +483,7 @@
       </div>
 
       <div class="promo-card">
-        <div class="promo-header"><h3>Chase Secure Banking<sup>SM</sup></h3><svg viewBox="0 0 48 48"><rect x="8" y="12" width="32" height="24" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="24" cy="24" r="6" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
+        <div class="promo-header"><h3>Chase Secure Banking<sup>SM</sup></h3><svg viewBox="0 0 48 48"><rect x="8" y="12" width="32" height="24" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="24" cy="24" r="6" fill="none" stroke="2"/></svg></div>
         <p><strong>Get $175 as a new Chase banking customer</strong></p><p>When you open a Chase Secure Banking account with qualifying activities. $0 Monthly Service Fee for customers aged 17-24.</p><a href="#" class="btn-blue">Open now</a>
       </div>
 
@@ -611,55 +623,88 @@
             <svg viewBox="0 0 24 24" id="btn-open-profile" style="cursor: pointer;"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M7 20.662V19a5 5 0 0 1 10 0v1.662"/></svg>
           </div>
         </div>
-        <div class="dash-greeting"><span id="greeting-text">Good evening, User</span><span class="divider-bar">|</span><span class="date-text" id="date-text">Date</span></div>
+        <div class="dash-greeting"><span id="greeting-text">Good evening</span><span class="date-text" id="date-text">Date</span></div>
         <div class="action-pills">
-          <button class="pill-btn">Deposit checks</button>
-          <button class="pill-btn">Find ATM & branch</button>
-          <button class="pill-btn" id="btn-see-bills">See bill activities</button>
+          <button class="pill-btn" id="nav-pay-quick">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+            Send | Zelle®
+          </button>
+          <button class="pill-btn">
+            <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
+            Deposit checks
+          </button>
+          <button class="pill-btn" id="btn-see-bills">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+            Pay bills
+          </button>
         </div>
       </header>
       <main class="dash-main">
         <div class="snapshot-card">
           <div class="snapshot-icon"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg></div>
-          <div class="snapshot-content"><h4>Today's Snapshot <span class="tag">30 sec read</span></h4><p>Card usage this week: <strong>$0</strong></p></div>
+          <div class="snapshot-content"><h4>Snapshot <span class="tag">30 sec read</span></h4><p>Your card usage is <strong>$0</strong> this week.</p></div>
           <div class="chevron"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
         </div>
+        
         <div class="accounts-header"><h3>Accounts</h3><button class="options-btn">...</button></div>
+        
         <div class="account-card">
-          <div class="account-card-header">Bank accounts (1)</div>
+          <div class="account-card-header">
+            <span>Bank accounts (1)</span>
+            <span id="total-bank-balance-header">$0.00</span>
+          </div>
           <div class="account-card-body">
-            <div class="account-name-row">TOTAL CHECKING</div>
-            <div class="account-balance" style="display: flex; justify-content: space-between; align-items: flex-end;">
-              <div style="text-align: left; font-size: 14px; color: #333;" id="account-number-display">...----</div>
-              <div><div class="amount" id="main-checking-balance">$0.00 <svg style="width: 14px; height: 24px; fill: #999;" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg></div><div class="label">Available balance</div></div>
+            <div class="account-name-row">
+              <span id="bank-acct-name-display">CHASE SECURE BANKING (...----) <svg style="width:12px;height:12px;display:inline-block;vertical-align:middle;fill:#333;" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></span>
+            </div>
+            <div class="account-balance" style="text-align: right; padding-right: 8px;">
+              <div class="amount" id="main-checking-balance">$0.00 <svg style="width: 14px; height: 24px; fill: #999;" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg></div>
+              <div class="label">Available balance</div>
             </div>
           </div>
+          <div class="link-external-row">
+            <span>Link external accounts</span>
+            <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+          </div>
         </div>
+
         <div class="account-card">
-          <div class="account-card-header"><svg style="width: 20px; height: 20px; fill: #fff;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg> Credit cards (1)</div>
+          <div class="account-card-header"><svg style="width: 16px; height: 16px; fill: #fff;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg> Credit cards (1)</div>
           <div class="account-card-body">
-            <div class="account-name-row" style="font-size: 18px; margin-bottom: 24px;">Sapphire Preferred <span id="cc-number-display" style="font-size: 14px; color: #666; margin-left: 8px;">...----</span></div>
+            <div class="account-name-row" style="font-size: 16px; margin-bottom: 24px;">Sapphire Preferred <span id="cc-number-display" style="font-size: 13px; color: #666; margin-left: 8px;">...----</span></div>
             <div style="display: flex; justify-content: space-between; align-items: center;">
-              <!-- CLICKABLE SAPPHIRE CARD -->
               <div class="cc-image-container" id="btn-open-vcard">
                 <img src="https://creditcards.chase.com/content/dam/jpmc-marketplace/card-art/sapphire-preferredcard2026.png" alt="Sapphire Preferred">
               </div>
-              <div class="account-balance"><div class="amount">$0.00 <svg style="width: 14px; height: 24px; fill: #999;" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg></div><div class="label">Current balance</div></div>
+              <div class="account-balance" style="padding-right: 8px;">
+                <div class="amount" style="font-size: 28px;">$<span id="sapphire-balance-display">0.00</span> <svg style="width: 14px; height: 24px; fill: #999;" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg></div>
+                <div class="label">Current balance</div>
+              </div>
             </div>
             <div class="cc-autopay-msg"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> You've scheduled your automatic payment for <span id="autopay-date" style="margin-left: 4px;">...</span></div>
           </div>
         </div>
-        <button class="open-account-btn"><svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> Open an account</button>
-        <div class="list-container">
-          <div class="list-item">
-            <div class="list-item-icon"><svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .89-2 2v8c0 1.11.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg></div>
-            <div class="list-item-content"><h4>Spending & budgeting</h4><p>Set a budget and track your spending</p></div>
-            <div class="chevron"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
-          </div>
-          <div class="list-item">
-            <div class="list-item-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm2.1-14.5l-4.4 7.6c-.3.5-.1 1.1.4 1.4.5.3 1.1.1 1.4-.4l4.4-7.6c.3-.5.1-1.1-.4-1.4-.5-.3-1.1-.1-1.4.4z"/></svg></div>
-            <div class="list-item-content"><h4>Credit Journey</h4><p>Check your free credit score</p></div>
-            <div class="chevron"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
+
+        <!-- Open an account section matching image 1 -->
+        <div class="open-account-section">
+          <h3>Open an account</h3>
+          <div class="open-account-icons">
+            <div class="open-account-icon">
+              <div class="icon-circle"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg></div>
+              <span>Credit cards</span>
+            </div>
+            <div class="open-account-icon">
+              <div class="icon-circle"><svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .89-2 2v8c0 1.11.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg></div>
+              <span>Checking</span>
+            </div>
+            <div class="open-account-icon">
+              <div class="icon-circle"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg></div>
+              <span>Savings<br>& CDs</span>
+            </div>
+            <div class="open-account-icon">
+              <div class="icon-circle"><svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg></div>
+              <span>Invest on<br>your own</span>
+            </div>
           </div>
         </div>
       </main>
@@ -713,7 +758,7 @@
       </main>
     </div>
 
-    <!-- Pay & Transfer List Sub-View -->
+    <!-- Pay & Transfer List Sub-View (Matching Image 2) -->
     <div id="pay-transfer-view" class="sub-view">
       <header class="sub-header">
         <div class="sub-top-bar"><button class="back-btn" id="btn-pay-back"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></button><div class="chat-icon"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg></div></div>
@@ -722,54 +767,37 @@
       <main class="pay-content">
         <div class="list-container">
           
-          <!-- Pay Sapphire Credit Card -->
-          <div class="list-item" id="trigger-sapphire">
-            <div class="list-item-icon"><svg viewBox="0 0 24 24" class="icon-sapphire"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg></div>
-            <div class="list-item-content"><h4>Pay Sapphire Preferred</h4><p>Make a payment to your credit card</p></div>
-          </div>
-
           <div class="list-item" id="trigger-internal">
             <div class="list-item-icon"><svg viewBox="0 0 24 24" class="icon-bank"><path d="M2 21h20v-2H2v2zm2-3h2V9H4v9zm4 0h2V9H8v9zm4 0h2V9h-2v9zm4 0h2V9h-2v9zm4 0h2V9h-2v9zM12 2L2 8v3h20V8L12 2z"/></svg></div>
             <div class="list-item-content"><h4>Transfer to Chase Bank</h4><p>Instant internal transfer</p></div>
           </div>
+          
           <div class="list-item" id="trigger-external">
             <div class="list-item-icon"><svg viewBox="0 0 24 24" class="icon-bank"><path d="M2 21h20v-2H2v2zm2-3h2V9H4v9zm4 0h2V9H8v9zm4 0h2V9h-2v9zm4 0h2V9h-2v9zm4 0h2V9h-2v9zM12 2L2 8v3h20V8L12 2z"/></svg></div>
             <div class="list-item-content"><h4>Transfer to Other Bank</h4><p>ACH & External</p></div>
           </div>
+          
           <div class="list-item" id="trigger-zelle">
             <div class="list-item-icon"><svg viewBox="0 0 24 24" class="icon-zelle"><path d="M5 4h14v2L8.5 18H19v2H5v-2l10.5-12H5V4z"/></svg></div>
             <div class="list-item-content"><h4>Zelle®</h4><p>Send money to friends</p></div>
           </div>
+          
           <div class="list-item" id="trigger-wire">
             <div class="list-item-icon"><svg viewBox="0 0 24 24" class="icon-wire"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg></div>
             <div class="list-item-content"><h4>Wire Transfer</h4><p>Domestic & International</p></div>
           </div>
+          
         </div>
       </main>
     </div>
 
-    <!-- Sapphire Payment Sub-View -->
-    <div id="sapphire-transfer-view" class="sub-view">
-      <div class="transfer-view-container">
-        <div class="transfer-card">
-          <div class="transfer-header"><h2>Pay Sapphire Preferred</h2><button class="cancel-btn" onclick="goBackToPay()">Cancel</button></div>
-          <form id="sapphire-form">
-            <div class="form-group"><label>From Account</label><select class="form-control from-account-select"><option>EVERYDAY CHECKING ...0000 ($0.00)</option></select></div>
-            <div class="form-group"><label>To Credit Card</label><select class="form-control" id="sapphire-recipient"><option>Sapphire Preferred (...1111)</option></select></div>
-            <div class="form-group"><label>Amount</label><input type="number" id="sapphire-amount" class="form-control" placeholder="$0.00" required></div>
-            <button type="submit" class="send-money-btn">Pay Card</button>
-          </form>
-        </div>
-      </div>
-    </div>
-
-    <!-- Internal Transfer Sub-View -->
+    <!-- Internal Transfer Sub-View (Modified to accept text input) -->
     <div id="internal-transfer-view" class="sub-view">
       <div class="transfer-view-container"><div class="transfer-card">
-        <div class="transfer-header"><h2>Internal Transfer</h2><button class="cancel-btn" onclick="goBackToPay()">Cancel</button></div>
+        <div class="transfer-header"><h2>Transfer to Chase Bank</h2><button class="cancel-btn" onclick="goBackToPay()">Cancel</button></div>
         <form id="internal-form">
           <div class="form-group"><label>From Account</label><select class="form-control from-account-select"><option>EVERYDAY CHECKING ...0000 ($0.00)</option></select></div>
-          <div class="form-group"><label>To Account</label><select class="form-control" id="internal-recipient"><option>Checking ...9921</option><option>Savings ...5582</option></select></div>
+          <div class="form-group"><label>To Account Number</label><input type="text" id="internal-recipient" class="form-control" placeholder="Enter account ending (e.g. 4606)" required></div>
           <div class="form-group"><label>Amount</label><input type="number" id="internal-amount" class="form-control" placeholder="$0.00" required></div>
           <button type="submit" class="send-money-btn">Send Money</button>
         </form>
@@ -785,7 +813,7 @@
           <div class="form-group"><label>Bank Name</label><input type="text" class="form-control" placeholder="e.g. Chase" required></div>
           <div class="form-group"><label>Account Name</label><input type="text" class="form-control" placeholder="Name on account" required></div>
           <div class="form-group"><label>Routing Number</label><input type="text" class="form-control" placeholder="9-digit routing" required></div>
-          <div class="form-group"><label>Account Number</label><input type="text" id="external-recipient" class="form-control" placeholder="Account number" required></div>
+          <div class="form-group"><label>Account Number</label><input type="text" id="external-recipient" class="form-control" placeholder="Account number ending (e.g. 4606)" required></div>
           <div class="form-group"><label>Amount</label><input type="number" id="external-amount" class="form-control" placeholder="$0.00" required></div>
           <button type="submit" class="send-money-btn">Send Money</button>
         </form>
@@ -798,7 +826,7 @@
         <div class="transfer-header"><h2>Send with Zelle®</h2><button class="cancel-btn" onclick="goBackToPay()">Cancel</button></div>
         <form id="zelle-form">
           <div class="form-group"><label>From Account</label><select class="form-control from-account-select"><option>EVERYDAY CHECKING ...0000 ($0.00)</option></select></div>
-          <div class="form-group"><label>Recipient Email or Mobile</label><input type="text" id="zelle-recipient" class="form-control" placeholder="email@example.com" required></div>
+          <div class="form-group"><label>Recipient Email or Account Number</label><input type="text" id="zelle-recipient" class="form-control" placeholder="email@example.com or 4606" required></div>
           <div class="form-group"><label>Amount</label><input type="number" id="zelle-amount" class="form-control" placeholder="$0.00" required></div>
           <button type="submit" class="send-money-btn">Send Money</button>
         </form>
@@ -852,7 +880,6 @@
             </div>
           </div>
           
-          <!-- CUSTOMER SINCE 2015 -->
           <div class="detail-row">
             <svg class="detail-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
             <div class="detail-text">
@@ -874,14 +901,13 @@
       </main>
     </div>
 
-    <!-- Redesigned Bottom Nav & FAB -->
+    <!-- Redesigned Bottom Nav -->
     <div class="bottom-nav">
       <div class="nav-item active" id="nav-accounts"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .89-2 2v8c0 1.11.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg><span>Accounts</span></div>
       <div class="nav-item" id="nav-pay"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.99 11L3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z"/></svg><span>Pay & transfer</span></div>
       <div class="nav-item" id="nav-plan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg><span>Plan & track</span></div>
       <div class="nav-item" id="nav-investments"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg><span>Investments</span></div>
     </div>
-    <div class="fab"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg></div>
   </div>
 
   <!-- =========================================================
@@ -915,6 +941,9 @@
     </div>
   </div>
 
+  <!-- =========================================================
+       JAVASCRIPT LOGIC
+       ========================================================= -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const signInBtnHome = document.getElementById('trigger-signin');
@@ -1043,18 +1072,26 @@
         const userLocale = navigator.language || 'en-US';
         const dateString = now.toLocaleDateString(userLocale, options);
         
+        // Time-sensitive greeting with username
         document.getElementById('greeting-text').textContent = `${greetingPrefix}, ${user.username}`;
         document.getElementById('date-text').textContent = dateString;
         
-        document.getElementById('account-number-display').textContent = `...${user.accountNum}`;
+        document.getElementById('bank-acct-name-display').innerHTML = `CHASE SECURE BANKING (...${user.accountNum}) <svg style="width:12px;height:12px;display:inline-block;vertical-align:middle;fill:#333;" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>`;
         document.getElementById('bill-account-label').textContent = `TOTAL CHECKING (...${user.accountNum})`;
         document.getElementById('cc-number-display').textContent = `...${user.ccNum}`;
         document.getElementById('vcard-num-display').textContent = `Account ending in ...${user.ccNum}`;
 
         // Update Balance
         const checkingBalanceDisplay = document.getElementById('main-checking-balance');
+        const totalBalanceHeader = document.getElementById('total-bank-balance-header');
+        
+        const formattedBal = `$${(user.balance || 0).toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+        
         if (checkingBalanceDisplay) {
-             checkingBalanceDisplay.innerHTML = `$${(user.balance || 0).toFixed(2)} <svg style="width: 14px; height: 24px; fill: #999;" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
+             checkingBalanceDisplay.innerHTML = `${formattedBal} <svg style="width: 14px; height: 24px; fill: #999;" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
+        }
+        if (totalBalanceHeader) {
+             totalBalanceHeader.textContent = formattedBal;
         }
 
         document.getElementById('profile-display-name').textContent = user.username;
@@ -1068,7 +1105,7 @@
         const nextMonthString = nextMonthDate.toLocaleDateString(userLocale, nextMonthOptions);
         document.getElementById('autopay-date').textContent = nextMonthString + '.';
 
-        const accountString = `EVERYDAY CHECKING ...${user.accountNum} ($${(user.balance || 0).toFixed(2)})`;
+        const accountString = `EVERYDAY CHECKING ...${user.accountNum} (${formattedBal})`;
         document.querySelectorAll('.from-account-select').forEach(select => { select.innerHTML = `<option>${accountString}</option>`; });
 
         // Populate Transactions
@@ -1121,12 +1158,12 @@
       const btnBillsBack = document.getElementById('btn-bills-back');
       const navAccounts = document.getElementById('nav-accounts');
       const navPay = document.getElementById('nav-pay');
+      const navPayQuick = document.getElementById('nav-pay-quick');
       const btnPayBack = document.getElementById('btn-pay-back');
       const btnOpenProfile = document.getElementById('btn-open-profile');
       const btnProfileBack = document.getElementById('btn-profile-back');
       const btnSignOut = document.getElementById('btn-sign-out');
       
-      // New Buttons
       const btnOpenAlerts = document.getElementById('btn-open-alerts');
       const btnAlertsBack = document.getElementById('btn-alerts-back');
       const btnOpenVcard = document.getElementById('btn-open-vcard');
@@ -1146,11 +1183,11 @@
       if (btnBillsBack) { btnBillsBack.addEventListener('click', () => { dashboardPage.classList.remove('show-bills'); }); }
       if (navAccounts) { navAccounts.addEventListener('click', resetToMainView); }
       if (navPay) { navPay.addEventListener('click', () => { dashboardPage.classList.add('show-pay'); dashboardPage.classList.remove('show-bills', 'show-profile', 'show-internal', 'show-external', 'show-zelle', 'show-wire', 'show-sapphire', 'show-alerts', 'show-vcard'); updateNavActive('nav-pay'); }); }
+      if (navPayQuick) { navPayQuick.addEventListener('click', () => { dashboardPage.classList.add('show-pay'); dashboardPage.classList.remove('show-bills', 'show-profile', 'show-internal', 'show-external', 'show-zelle', 'show-wire', 'show-sapphire', 'show-alerts', 'show-vcard'); updateNavActive('nav-pay'); }); }
       if (btnPayBack) { btnPayBack.addEventListener('click', resetToMainView); }
       if (btnOpenProfile) { btnOpenProfile.addEventListener('click', () => { dashboardPage.classList.add('show-profile'); dashboardPage.classList.remove('show-bills', 'show-pay', 'show-internal', 'show-external', 'show-zelle', 'show-wire', 'show-sapphire', 'show-alerts', 'show-vcard'); }); }
       if (btnProfileBack) { btnProfileBack.addEventListener('click', resetToMainView); }
 
-      // New Handlers
       if (btnOpenAlerts) { btnOpenAlerts.addEventListener('click', () => { dashboardPage.classList.add('show-alerts'); dashboardPage.classList.remove('show-bills', 'show-pay', 'show-profile', 'show-internal', 'show-external', 'show-zelle', 'show-wire', 'show-sapphire', 'show-vcard'); }); }
       if (btnAlertsBack) { btnAlertsBack.addEventListener('click', resetToMainView); }
 
@@ -1159,7 +1196,6 @@
 
       window.goBackToPay = function() { dashboardPage.classList.remove('show-internal', 'show-external', 'show-zelle', 'show-wire', 'show-sapphire', 'show-alerts', 'show-vcard'); dashboardPage.classList.add('show-pay'); };
 
-      document.getElementById('trigger-sapphire').addEventListener('click', () => { dashboardPage.classList.remove('show-pay'); dashboardPage.classList.add('show-sapphire'); });
       document.getElementById('trigger-internal').addEventListener('click', () => { dashboardPage.classList.remove('show-pay'); dashboardPage.classList.add('show-internal'); });
       document.getElementById('trigger-external').addEventListener('click', () => { dashboardPage.classList.remove('show-pay'); dashboardPage.classList.add('show-external'); });
       document.getElementById('trigger-zelle').addEventListener('click', () => { dashboardPage.classList.remove('show-pay'); dashboardPage.classList.add('show-zelle'); });
@@ -1247,17 +1283,9 @@
         processTransfer(amount, recipient, 'Wire Transfer');
       });
 
-      document.getElementById('sapphire-form').addEventListener('submit', (e) => {
-        e.preventDefault();
-        let amount = parseFloat(document.getElementById('sapphire-amount').value);
-        let recipient = 'Sapphire Preferred';
-        processTransfer(amount, recipient, 'Credit Card Payment');
-      });
-
       // Close Modal
       window.closeSuccessAndRefresh = function() {
         document.getElementById('success-overlay').classList.remove('active');
-        // Optional: go back to main dashboard
         resetToMainView(); 
       };
 
@@ -1323,5 +1351,34 @@
       }
     });
   </script>
+
+  <!-- =========================================================
+       CHAPORT LIVE CHAT WIDGET (CUSTOM TITLE)
+       ========================================================= -->
+  <script type="text/javascript">
+  (function(w,d,v3){
+      w.chaportConfig = {
+          appId: '6ae6e178ae7fe56b32aa5c70',
+          title: 'Chase Customer Service'
+      };
+      if(w.chaport)return;
+      v3=w.chaport={};
+      v3._q=[];
+      v3._l={};
+      v3.q=function(){v3._q.push(arguments)};
+      v3.on=function(e,fn){
+          if(!v3._l[e])v3._l[e]=[];
+          v3._l[e].push(fn)
+      };
+      var s=d.createElement('script');
+      s.type='text/javascript';
+      s.async=true;
+      s.src='https://app.chaport.com/javascripts/insert.js';
+      var ss=d.getElementsByTagName('script')[0];
+      ss.parentNode.insertBefore(s,ss)
+  })(window, document);
+  </script>
+  <!-- End of Chaport Live Chat code -->
+
 </body>
 </html>
