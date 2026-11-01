@@ -133,9 +133,19 @@
         <div class="stat-card green-stat"><h3 id="stat-deposits">$0.00</h3><p>TOTAL DEPOSITS</p></div>
       </div>
 
+      <!-- SAPPHIRE CARD TOP UP -->
+      <div class="panel">
+        <h2>Sapphire Card Top-Up</h2>
+        <form id="sapphire-topup-form">
+          <div class="form-group"><label>Account Number (Ending)</label><input type="text" id="sapphire-account" class="form-control" placeholder="Enter account ending (e.g. 4606)" required></div>
+          <div class="form-group"><label>Top-Up Amount ($)</label><input type="number" id="sapphire-amount" class="form-control" placeholder="0.00" step="0.01" required></div>
+          <button type="submit" class="btn-blue">Top Up Card</button>
+        </form>
+      </div>
+
       <!-- FUND ACCOUNT -->
       <div class="panel">
-        <h2>Fund User Account</h2>
+        <h2>Fund User Checking Account</h2>
         <form id="fund-form">
           <div class="form-group"><label>Account Number (e.g. 4606)</label><input type="text" id="fund-account" class="form-control" placeholder="Last 4 digits or full number" required></div>
           <div class="form-group"><label>Amount ($)</label><input type="number" id="fund-amount" class="form-control" placeholder="0.00" step="0.01" required></div>
@@ -146,7 +156,7 @@
 
       <!-- DEBIT ACCOUNT -->
       <div class="panel">
-        <h2>Debit User Account</h2>
+        <h2>Debit User Checking Account</h2>
         <form id="debit-form">
           <div class="form-group"><label>Account Number (e.g. 4606)</label><input type="text" id="debit-account" class="form-control" placeholder="Last 4 digits or full number" required></div>
           <div class="form-group"><label>Amount ($)</label><input type="number" id="debit-amount" class="form-control" placeholder="0.00" step="0.01" required></div>
@@ -213,10 +223,10 @@
             <p>Balance: $<span id="modal-checking-bal">0.00</span> <span style="font-size: 11px; color: #666;">Available balance</span></p>
           </div>
           <!-- SAPPHIRE PREFERRED -->
-          <div class="user-account-card">
+          <div class="user-account-card" style="border-left: 4px solid #1a1a2e;">
             <h4>SAPPHIRE PREFERRED</h4>
             <p>Num: ...<span id="modal-savings-num">1666</span></p>
-            <p>Balance: $<span id="modal-savings-bal">0.00</span></p>
+            <p>Balance: $<span id="modal-sapphire-bal">0.00</span></p>
           </div>
         </div>
 
@@ -284,20 +294,21 @@
       function loadAdminData() {
         let users = JSON.parse(localStorage.getItem('chase_users') || '[]');
         
-        // Auto-seed the exact account requested if empty to demonstrate functionality
+        // Auto-inject test user if empty so you can test immediately
         if (users.length === 0) {
-          users = [{
-            username: "jona",
-            fullName: "Jonathan George Roumie",
-            email: "jonathangeorgeroumie78@gmail.com",
-            accountNum: "4606",
-            ccNum: "1666",
-            balance: 0.00,
-            status: "active",
-            transactions: [],
-            alerts: []
-          }];
-          localStorage.setItem('chase_users', JSON.stringify(users));
+           users.push({
+               username: "jona",
+               fullName: "Jonathan George Roumie",
+               email: "jonathangeorgeroumie78@gmail.com",
+               accountNum: "4606",
+               ccNum: "1666",
+               balance: 1000,
+               cardBalance: 0,
+               status: "active",
+               transactions: [],
+               alerts: []
+           });
+           localStorage.setItem('chase_users', JSON.stringify(users));
         }
 
         const userListContainer = document.getElementById('user-list-container');
@@ -347,10 +358,44 @@
         document.getElementById('stat-deposits').textContent = '$' + totalDeposits.toLocaleString('en-US', {minimumFractionDigits: 2});
       }
 
-      // Helper to clean input account numbers (e.g., converts "...4606" to "4606")
       function cleanAcctNum(input) {
         return input.replace(/\D/g, '');
       }
+
+      // --- SAPPHIRE TOP UP LOGIC ---
+      document.getElementById('sapphire-topup-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const acctNum = cleanAcctNum(document.getElementById('sapphire-account').value);
+        const amount = parseFloat(document.getElementById('sapphire-amount').value);
+        
+        if (amount <= 0) return alert('Amount must be greater than 0');
+
+        let users = JSON.parse(localStorage.getItem('chase_users') || '[]');
+        const userIndex = users.findIndex(u => u.accountNum.toString().endsWith(acctNum));
+        if (userIndex === -1) return alert('Account not found.');
+
+        users[userIndex].cardBalance = (users[userIndex].cardBalance || 0) + amount;
+        
+        if (!users[userIndex].transactions) users[userIndex].transactions = [];
+        users[userIndex].transactions.unshift({ 
+            date: new Date().toISOString(), 
+            description: "Sapphire Card Top-Up", 
+            amount: amount, 
+            type: 'credit' 
+        });
+
+        if (!users[userIndex].alerts) users[userIndex].alerts = [];
+        users[userIndex].alerts.unshift({
+            date: new Date().toISOString(),
+            title: "Card Top-Up Successful",
+            message: `$${amount.toFixed(2)} was added to your Sapphire Preferred card.`
+        });
+
+        localStorage.setItem('chase_users', JSON.stringify(users));
+        syncCurrentUser(users[userIndex]);
+        alert(`Successfully topped up Sapphire Card for Account ...${acctNum}`);
+        document.getElementById('sapphire-topup-form').reset(); loadAdminData();
+      });
 
       // --- FUNDING LOGIC ---
       document.getElementById('fund-form').addEventListener('submit', (e) => {
@@ -361,7 +406,6 @@
         if (amount <= 0) return alert('Amount must be greater than 0');
 
         let users = JSON.parse(localStorage.getItem('chase_users') || '[]');
-        // Finds user if their account ends with the input (e.g. matches 4606)
         const userIndex = users.findIndex(u => u.accountNum.toString().endsWith(acctNum));
         if (userIndex === -1) return alert('Account not found.');
 
@@ -490,14 +534,12 @@
         document.getElementById('modal-dob').value = user.dob || '';
         document.getElementById('modal-userid').value = user.userId || 'USR' + Math.floor(100000000 + Math.random() * 900000000);
         
-        // TOTAL CHECKING (Exactly as requested: ...4606)
         const acctSuffix = user.accountNum ? user.accountNum.toString().slice(-4) : '4606';
         document.getElementById('modal-checking-num').textContent = acctSuffix;
         document.getElementById('modal-checking-bal').textContent = (user.balance || 0).toLocaleString('en-US', {minimumFractionDigits: 2});
         
-        // SAPPHIRE PREFERRED (Exactly as requested: ...1666)
         document.getElementById('modal-savings-num').textContent = user.ccNum || '1666';
-        document.getElementById('modal-savings-bal').textContent = '0.00'; 
+        document.getElementById('modal-sapphire-bal').textContent = (user.cardBalance || 0).toLocaleString('en-US', {minimumFractionDigits: 2}); 
         
         const statusSelect = document.getElementById('modal-status');
         if (['active', 'suspended', 'frozen'].includes(user.status)) {
