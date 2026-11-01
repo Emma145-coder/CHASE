@@ -142,10 +142,10 @@
     .toggle-password { color: var(--chase-blue); font-weight: 600; font-size: 15px; cursor: pointer; padding: 4px; user-select: none; }
     .btn-auth { width: 100%; background: var(--chase-blue); color: #fff; padding: 14px; border-radius: 6px; font-size: 16px; font-weight: 600; border: none; cursor: pointer; transition: background 0.2s; margin-bottom: 16px; }
     .btn-auth:hover { background: var(--chase-blue-dark); }
-    .divider { display: flex; align-items: center; text-align: center; margin: 20px 0; color: #555; font-size: 14="px; }
-    .divider::before, .divcurrentider::after { content: ''; flex: 1;Color border-bottom: 1px solid var(--chase-blue); }
-"    stroke .divider::before { margin-right: 15px; }
-    .div-widthider::after { margin-left: 15px; }
+    .divider { display: flex; align-items: center; text-align: center; margin: 20px 0; color: #555; font-size: 14px; }
+    .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--chase-blue); }
+    .divider::before { margin-right: 15px; }
+    .divider::after { margin-left: 15px; }
     .btn-passwordless { width: 100%; background: #EBF2FA; color: var(--chase-blue); padding: 14px; border-radius: 6px; font-size: 16px; font-weight: 600; border: none; cursor: pointer; transition: background 0.2s; margin-bottom: 24px; }
     .btn-passwordless:hover { background: #dcE7f5; }
     .auth-links { display: flex; flex-direction: column; gap: 16px; }
@@ -238,8 +238,6 @@
     .nav-item.active span { font-weight: 600; }
     .nav-item svg { width: 24px; height: 24px; fill: #8a8a8a; transition: fill 0.2s ease; }
     .nav-item.active svg, .nav-item:hover svg { fill: var(--chase-header-blue); }
-
-    /* Removed FAB CSS */
 
     /* =========================================================
        SUB-VIEWS (BILLS, PAY, PROFILE, ALERTS, VIRTUAL CARD)
@@ -341,38 +339,21 @@
     .vcard-info p { font-size: 14px; color: #ccc; margin-top: 4px; }
 
     /* =========================================================
-       TRANSFER SUCCESS MODAL
+       ACCESS RESTRICTED MODAL
        ========================================================= */
-    .success-overlay {
+    .frozen-overlay {
       display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0, 0, 0, 0.6); z-index: 9999;
       justify-content: center; align-items: center; padding: 20px;
     }
-    .success-overlay.active { display: flex; }
-    .success-card {
+    .frozen-overlay.active { display: flex; }
+    .frozen-card {
       background: #fff; border-radius: 16px; width: 100%; max-width: 400px;
       padding: 32px 24px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
     }
-    .success-icon {
-      width: 64px; height: 64px; background: #2e7d32; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto;
-    }
-    .success-icon svg { width: 32px; height: 32px; fill: #fff; }
-    .success-card h2 { font-size: 22px; font-weight: 700; color: #000; margin-bottom: 8px; }
-    .success-card h1 { font-size: 36px; font-weight: 600; color: #000; margin-bottom: 8px; }
-    .success-card p { font-size: 15px; color: #555; margin-bottom: 24px; }
-    
-    .success-details { background: #f8f9fa; border-radius: 8px; padding: 16px; text-align: left; margin-bottom: 24px; }
-    .detail-line { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px; border-bottom: 1px solid #e0e0e0; padding-bottom: 8px; }
-    .detail-line:last-child { margin-bottom: 0; border-bottom: none; padding-bottom: 0; }
-    .detail-line span { color: #666; }
-    .detail-line strong { color: #000; }
-    
-    .btn-done {
-      width: 100%; background: var(--chase-header-blue); color: #fff;
-      padding: 16px; border-radius: 8px; font-size: 16px; font-weight: 600; border: none; cursor: pointer;
-    }
-    .btn-done:hover { background: var(--chase-blue-dark); }
+    .frozen-card h2 { color: #b91c1c; font-size: 24px; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 16px; font-weight: 700; }
+    .frozen-card p { font-size: 16px; color: #444; margin-bottom: 24px; line-height: 1.5; }
+    .btn-close-frozen { width: 100%; background: #b91c1c; color: #fff; padding: 16px; border-radius: 8px; font-size: 16px; font-weight: 600; border: none; cursor: pointer; }
 
     @media (max-width: 480px) { .dash-greeting { font-size: 22px; } .dash-greeting .date-text { font-size: 13px; } }
   </style>
@@ -483,7 +464,7 @@
       </div>
 
       <div class="promo-card">
-        <div class="promo-header"><h3>Chase Secure Banking<sup>SM</sup></h3><svg viewBox="0 0 48 48"><rect x="8" y="12" width="32" height="24" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="24" cy="24" r="6" fill="none" stroke="2"/></svg></div>
+        <div class="promo-header"><h3>Chase Secure Banking<sup>SM</sup></h3><svg viewBox="0 0 48 48"><rect x="8" y="12" width="32" height="24" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="24" cy="24" r="6" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
         <p><strong>Get $175 as a new Chase banking customer</strong></p><p>When you open a Chase Secure Banking account with qualifying activities. $0 Monthly Service Fee for customers aged 17-24.</p><a href="#" class="btn-blue">Open now</a>
       </div>
 
@@ -746,8 +727,8 @@
     <!-- Bill Activities Sub-View -->
     <div id="bill-activities-view" class="sub-view">
       <header class="sub-header">
-        <div class="sub-top-bar"><button class="back-btn" id="btn-bills-back"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></button><div class="chat-icon"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg></div></div>
-        <h1>Bill Activities</h1><div class="account-label" id="bill-account-label">TOTAL CHECKING (...----)</div>
+        <div class="sub-top-bar"><="button class="back-btn" id="btn-bills-back"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></button><div class="chat-icon"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg></div></div>
+        <h1>Bill Activities</h1><div classaccount-label" id="bill-account-label">TOTAL CHECKING (...----)</div>
       </header>
       <main class="bills-content">
         <div class="search-bar">
@@ -911,33 +892,16 @@
   </div>
 
   <!-- =========================================================
-       TRANSFER SUCCESS MODAL
+       ACCESS RESTRICTED MODAL (Triggers when Admin sets Frozen/Suspended)
        ========================================================= -->
-  <div id="success-overlay" class="success-overlay">
-    <div class="success-card">
-      <div class="success-icon">
-        <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-      </div>
-      <h2>Transfer Successful</h2>
-      <h1 id="success-amount">$0.00</h1>
-      <p>Transaction Completed</p>
-      
-      <div class="success-details">
-        <div class="detail-line">
-          <span>Sent To:</span>
-          <strong id="success-recipient">...</strong>
-        </div>
-        <div class="detail-line">
-          <span>Date:</span>
-          <span id="success-date">...</span>
-        </div>
-        <div class="detail-line">
-          <span>Ref ID:</span>
-          <span id="success-ref">...</span>
-        </div>
-      </div>
-      
-      <button class="btn-done" onclick="closeSuccessAndRefresh()">Done</button>
+  <div id="access-restricted-overlay" class="frozen-overlay">
+    <div class="frozen-card">
+      <h2>
+        <svg style="width: 28px; height: 28px; fill: #b91c1c;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11H7v-2h10v2z"/></svg>
+        Access Restricted
+      </h2>
+      <p>Account frozen, contact live chat support for more information.</p>
+      <button class="btn-close-frozen" onclick="document.getElementById('access-restricted-overlay').classList.remove('active')">Close</button>
     </div>
   </div>
 
@@ -1204,6 +1168,17 @@
       // --- TRANSFER LOGIC ---
       function processTransfer(amount, recipient, type) {
         let user = JSON.parse(localStorage.getItem('chase_current_user'));
+        
+        // Fetch live status from admin
+        let allUsers = JSON.parse(localStorage.getItem('chase_users') || '[]');
+        let liveUser = allUsers.find(u => u.username === user.username);
+
+        // Check if Admin set the account to Frozen or Suspended
+        if (liveUser && (liveUser.status === 'frozen' || liveUser.status === 'suspended')) {
+            document.getElementById('access-restricted-overlay').classList.add('active');
+            return false;
+        }
+
         let currentBalance = user.balance || 0;
 
         if (amount > currentBalance) {
@@ -1241,15 +1216,11 @@
         let idx = users.findIndex(u => u.username === user.username);
         if (idx > -1) { users[idx] = user; localStorage.setItem('chase_users', JSON.stringify(users)); }
 
-        // Show Success UI
-        document.getElementById('success-amount').textContent = '$' + amount.toFixed(2);
-        document.getElementById('success-recipient').textContent = recipient;
-        document.getElementById('success-date').textContent = dateStr;
-        document.getElementById('success-ref').textContent = refId;
+        // Show Success Alert & Refresh
+        alert(`Transfer Successful!\n\nAmount: $${amount.toFixed(2)}\nSent to: ${recipient}\nDate: ${dateStr}\nRef: ${refId}`);
         
         document.getElementById('dashboard-page').classList.remove('show-internal', 'show-external', 'show-zelle', 'show-wire', 'show-sapphire');
-        document.getElementById('success-overlay').classList.add('active');
-
+        resetToMainView();
         initDashboard(); 
         return true;
       }
@@ -1282,12 +1253,6 @@
         let recipient = document.getElementById('wire-recipient').value;
         processTransfer(amount, recipient, 'Wire Transfer');
       });
-
-      // Close Modal
-      window.closeSuccessAndRefresh = function() {
-        document.getElementById('success-overlay').classList.remove('active');
-        resetToMainView(); 
-      };
 
       // Profile Logic
       const phoneDisplay = document.getElementById('profile-phone-display');
