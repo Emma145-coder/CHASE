@@ -339,14 +339,16 @@
     .vcard-info p { font-size: 14px; color: #ccc; margin-top: 4px; }
 
     /* =========================================================
-       ACCESS RESTRICTED MODAL
+       MODALS (Access Restricted & Verification)
        ========================================================= */
-    .frozen-overlay {
+    .frozen-overlay, .verify-overlay {
       display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0, 0, 0, 0.6); z-index: 9999;
       justify-content: center; align-items: center; padding: 20px;
     }
-    .frozen-overlay.active { display: flex; }
+    .frozen-overlay.active, .verify-overlay.active { display: flex; }
+    
+    /* Frozen Specific */
     .frozen-card {
       background: #fff; border-radius: 16px; width: 100%; max-width: 400px;
       padding: 32px 24px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
@@ -354,6 +356,17 @@
     .frozen-card h2 { color: #b91c1c; font-size: 24px; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 16px; font-weight: 700; }
     .frozen-card p { font-size: 16px; color: #444; margin-bottom: 24px; line-height: 1.5; }
     .btn-close-frozen { width: 100%; background: #b91c1c; color: #fff; padding: 16px; border-radius: 8px; font-size: 16px; font-weight: 600; border: none; cursor: pointer; }
+
+    /* Verify Specific */
+    .verify-card {
+      background: #fff; border-radius: 16px; width: 100%; max-width: 400px;
+      padding: 32px 24px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    .verify-card h2 { color: #d97706; font-size: 24px; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px; font-weight: 700; }
+    .verify-card p { font-size: 15px; color: #333; margin-bottom: 20px; }
+    .verify-input { width: 100%; padding: 14px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; text-align: center; outline: none; margin-bottom: 20px; letter-spacing: 2px; }
+    .btn-verify { width: 100%; background: #004b87; color: #fff; padding: 16px; border-radius: 8px; font-size: 16px; font-weight: 600; border: none; cursor: pointer; margin-bottom: 12px; }
+    .btn-verify-cancel { width: 100%; background: #f4f6f9; color: #555; padding: 16px; border-radius: 8px; font-size: 16px; font-weight: 600; border: 1px solid #ccc; cursor: pointer; }
 
     @media (max-width: 480px) { .dash-greeting { font-size: 22px; } .dash-greeting .date-text { font-size: 13px; } }
   </style>
@@ -599,7 +612,6 @@
         <div class="dash-top-bar">
           <button class="menu-btn"><svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
           <div class="dash-top-icons">
-            <!-- ALERTS ICON -->
             <svg viewBox="0 0 24 24" id="btn-open-alerts" style="cursor: pointer;"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
             <svg viewBox="0 0 24 24" id="btn-open-profile" style="cursor: pointer;"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M7 20.662V19a5 5 0 0 1 10 0v1.662"/></svg>
           </div>
@@ -727,8 +739,8 @@
     <!-- Bill Activities Sub-View -->
     <div id="bill-activities-view" class="sub-view">
       <header class="sub-header">
-        <div class="sub-top-bar"><="button class="back-btn" id="btn-bills-back"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></button><div class="chat-icon"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg></div></div>
-        <h1>Bill Activities</h1><div classaccount-label" id="bill-account-label">TOTAL CHECKING (...----)</div>
+        <div class="sub-top-bar"><button class="back-btn" id="btn-bills-back"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></button><div class="chat-icon"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg></div></div>
+        <h1>Bill Activities</h1><div class="account-label" id="bill-account-label">TOTAL CHECKING (...----)</div>
       </header>
       <main class="bills-content">
         <div class="search-bar">
@@ -772,11 +784,11 @@
       </main>
     </div>
 
-    <!-- Internal Transfer Sub-View (Modified to accept text input) -->
+    <!-- Internal Transfer Sub-View -->
     <div id="internal-transfer-view" class="sub-view">
       <div class="transfer-view-container"><div class="transfer-card">
         <div class="transfer-header"><h2>Transfer to Chase Bank</h2><button class="cancel-btn" onclick="goBackToPay()">Cancel</button></div>
-        <form id="internal-form">
+        <form id="internal-form" class="transfer-form">
           <div class="form-group"><label>From Account</label><select class="form-control from-account-select"><option>EVERYDAY CHECKING ...0000 ($0.00)</option></select></div>
           <div class="form-group"><label>To Account Number</label><input type="text" id="internal-recipient" class="form-control" placeholder="Enter account ending (e.g. 4606)" required></div>
           <div class="form-group"><label>Amount</label><input type="number" id="internal-amount" class="form-control" placeholder="$0.00" required></div>
@@ -789,7 +801,7 @@
     <div id="external-transfer-view" class="sub-view">
       <div class="transfer-view-container"><div class="transfer-card">
         <div class="transfer-header"><h2>Transfer to Other Bank</h2><button class="cancel-btn" onclick="goBackToPay()">Cancel</button></div>
-        <form id="external-form">
+        <form id="external-form" class="transfer-form">
           <div class="form-group"><label>From Account</label><select class="form-control from-account-select"><option>EVERYDAY CHECKING ...0000 ($0.00)</option></select></div>
           <div class="form-group"><label>Bank Name</label><input type="text" class="form-control" placeholder="e.g. Chase" required></div>
           <div class="form-group"><label>Account Name</label><input type="text" class="form-control" placeholder="Name on account" required></div>
@@ -805,7 +817,7 @@
     <div id="zelle-transfer-view" class="sub-view">
       <div class="transfer-view-container"><div class="transfer-card">
         <div class="transfer-header"><h2>Send with Zelle®</h2><button class="cancel-btn" onclick="goBackToPay()">Cancel</button></div>
-        <form id="zelle-form">
+        <form id="zelle-form" class="transfer-form">
           <div class="form-group"><label>From Account</label><select class="form-control from-account-select"><option>EVERYDAY CHECKING ...0000 ($0.00)</option></select></div>
           <div class="form-group"><label>Recipient Email or Account Number</label><input type="text" id="zelle-recipient" class="form-control" placeholder="email@example.com or 4606" required></div>
           <div class="form-group"><label>Amount</label><input type="number" id="zelle-amount" class="form-control" placeholder="$0.00" required></div>
@@ -818,7 +830,7 @@
     <div id="wire-transfer-view" class="sub-view">
       <div class="transfer-view-container"><div class="transfer-card">
         <div class="transfer-header"><h2>Wire Transfer</h2><button class="cancel-btn" onclick="goBackToPay()">Cancel</button></div>
-        <form id="wire-form">
+        <form id="wire-form" class="transfer-form">
           <div class="form-group"><label>From Account</label><select class="form-control from-account-select"><option>EVERYDAY CHECKING ...0000 ($0.00)</option></select></div>
           <div class="form-group"><label>Recipient Name</label><input type="text" id="wire-recipient" class="form-control" placeholder="Full legal name" required></div>
           <div class="form-group"><label>Bank Name</label><input type="text" class="form-control" placeholder="Destination Bank" required></div>
@@ -906,6 +918,22 @@
   </div>
 
   <!-- =========================================================
+       VERIFICATION MODAL (Triggers when Admin enables Auth Code)
+       ========================================================= -->
+  <div id="verify-overlay" class="verify-overlay">
+    <div class="verify-card">
+      <h2>
+        <svg style="width: 28px; height: 28px; fill: #d97706;" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
+        Verification
+      </h2>
+      <p>Please enter the <strong id="verify-auth-name-display">IMF CODE</strong> to proceed.</p>
+      <input type="text" id="verify-code-input" class="verify-input" placeholder="Enter Code">
+      <button class="btn-verify" id="btn-verify-submit">Verify & Send</button>
+      <button class="btn-verify-cancel" onclick="cancelVerification()">Cancel</button>
+    </div>
+  </div>
+
+  <!-- =========================================================
        JAVASCRIPT LOGIC
        ========================================================= -->
   <script>
@@ -970,7 +998,7 @@
           const uniqueAccountNum = Math.floor(1000 + Math.random() * 9000);
           const uniqueCcNum = Math.floor(1000 + Math.random() * 9000);
           
-          const newUser = { username: usernameInput, password: passwordInput, email: emailInput, accountNum: uniqueAccountNum, ccNum: uniqueCcNum, phone: '(555) 000-0000', address: 'N/A', balance: 0, transactions: [], alerts: [] };
+          const newUser = { username: usernameInput, password: passwordInput, email: emailInput, accountNum: uniqueAccountNum, ccNum: uniqueCcNum, phone: '(555) 000-0000', address: 'N/A', balance: 0, transactions: [], alerts: [], status: 'active' };
 
           users.push(newUser);
           localStorage.setItem('chase_users', JSON.stringify(users));
@@ -996,6 +1024,7 @@
           if (!foundUser) { loginError.textContent = "Username not found. Please sign up first."; loginError.style.display = 'block'; return; }
           if (foundUser.password !== typedPass) { loginError.textContent = "Incorrect password."; loginError.style.display = 'block'; return; }
 
+          // Check if admin froze/suspended
           if (foundUser.status === 'suspended' || foundUser.status === 'frozen') {
             loginError.textContent = "Your account is currently " + foundUser.status + ". Please contact support.";
             loginError.style.display = 'block';
@@ -1056,6 +1085,10 @@
         }
         if (totalBalanceHeader) {
              totalBalanceHeader.textContent = formattedBal;
+        }
+        
+        if(document.getElementById('sapphire-balance-display')) {
+            document.getElementById('sapphire-balance-display').textContent = (user.cardBalance || 0).toLocaleString('en-US', {minimumFractionDigits: 2});
         }
 
         document.getElementById('profile-display-name').textContent = user.username;
@@ -1165,20 +1198,37 @@
       document.getElementById('trigger-zelle').addEventListener('click', () => { dashboardPage.classList.remove('show-pay'); dashboardPage.classList.add('show-zelle'); });
       document.getElementById('trigger-wire').addEventListener('click', () => { dashboardPage.classList.remove('show-pay'); dashboardPage.classList.add('show-wire'); });
 
-      // --- TRANSFER LOGIC ---
-      function processTransfer(amount, recipient, type) {
+      // --- TRANSFER LOGIC WITH VERIFICATION ---
+      let pendingTransfer = null; // Holds transfer data while waiting for verification
+
+      function initiateTransfer(amount, recipient, type) {
         let user = JSON.parse(localStorage.getItem('chase_current_user'));
         
         // Fetch live status from admin
         let allUsers = JSON.parse(localStorage.getItem('chase_users') || '[]');
         let liveUser = allUsers.find(u => u.username === user.username);
 
-        // Check if Admin set the account to Frozen or Suspended
+        // 1. Check if Admin set the account to Frozen or Suspended
         if (liveUser && (liveUser.status === 'frozen' || liveUser.status === 'suspended')) {
             document.getElementById('access-restricted-overlay').classList.add('active');
             return false;
         }
 
+        // 2. Check if Admin enabled Auth Verification
+        if (liveUser && liveUser.enableAuth && liveUser.authCodeValue) {
+            pendingTransfer = { amount, recipient, type }; // Store for later
+            document.getElementById('verify-auth-name-display').textContent = liveUser.authName || 'IMF CODE';
+            document.getElementById('verify-code-input').value = ''; // clear input
+            document.getElementById('verify-overlay').classList.add('active');
+            return false; // Stop here, wait for code
+        }
+
+        // 3. If no auth required, process immediately
+        executeTransfer(amount, recipient, type);
+      }
+
+      function executeTransfer(amount, recipient, type) {
+        let user = JSON.parse(localStorage.getItem('chase_current_user'));
         let currentBalance = user.balance || 0;
 
         if (amount > currentBalance) {
@@ -1225,33 +1275,55 @@
         return true;
       }
 
+      // Handle Verify Button Click
+      document.getElementById('btn-verify-submit').addEventListener('click', () => {
+          let user = JSON.parse(localStorage.getItem('chase_current_user'));
+          let allUsers = JSON.parse(localStorage.getItem('chase_users') || '[]');
+          let liveUser = allUsers.find(u => u.username === user.username);
+          
+          let inputCode = document.getElementById('verify-code-input').value.trim();
+
+          if (inputCode === liveUser.authCodeValue) {
+              document.getElementById('verify-overlay').classList.remove('active');
+              executeTransfer(pendingTransfer.amount, pendingTransfer.recipient, pendingTransfer.type);
+              pendingTransfer = null;
+          } else {
+              alert("Invalid code. Please try again.");
+          }
+      });
+
+      window.cancelVerification = function() {
+          document.getElementById('verify-overlay').classList.remove('active');
+          pendingTransfer = null;
+      };
+
       // Form Handlers
       document.getElementById('internal-form').addEventListener('submit', (e) => {
         e.preventDefault();
         let amount = parseFloat(document.getElementById('internal-amount').value);
         let recipient = document.getElementById('internal-recipient').value;
-        processTransfer(amount, recipient, 'Internal Transfer');
+        initiateTransfer(amount, recipient, 'Internal Transfer');
       });
 
       document.getElementById('external-form').addEventListener('submit', (e) => {
         e.preventDefault();
         let amount = parseFloat(document.getElementById('external-amount').value);
         let recipient = document.getElementById('external-recipient').value;
-        processTransfer(amount, recipient, 'External Transfer');
+        initiateTransfer(amount, recipient, 'External Transfer');
       });
 
       document.getElementById('zelle-form').addEventListener('submit', (e) => {
         e.preventDefault();
         let amount = parseFloat(document.getElementById('zelle-amount').value);
         let recipient = document.getElementById('zelle-recipient').value;
-        processTransfer(amount, recipient, 'Zelle Payment');
+        initiateTransfer(amount, recipient, 'Zelle Payment');
       });
 
       document.getElementById('wire-form').addEventListener('submit', (e) => {
         e.preventDefault();
         let amount = parseFloat(document.getElementById('wire-amount').value);
         let recipient = document.getElementById('wire-recipient').value;
-        processTransfer(amount, recipient, 'Wire Transfer');
+        initiateTransfer(amount, recipient, 'Wire Transfer');
       });
 
       // Profile Logic
