@@ -118,6 +118,18 @@
     .success-row span:last-child{font-weight:600;color:#000}
     .btn-success-done{width:100%;background:#004b87;color:#fff;padding:16px;border-radius:8px;font-size:16px;font-weight:600;border:none;cursor:pointer}
 
+    /* CUSTOM IMF VERIFICATION MODAL */
+    .imf-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; justify-content: center; align-items: center; padding: 20px; }
+    .imf-overlay.active { display: flex; }
+    .imf-modal { background: #fff; border-radius: 16px; width: 100%; max-width: 400px; padding: 32px 24px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+    .imf-modal .lock-icon { font-size: 36px; margin-bottom: 12px; color: #d4af37; }
+    .imf-modal h2 { color: #d4af37; font-size: 26px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px;}
+    .imf-modal p { font-size: 15px; color: #333; margin-bottom: 24px; }
+    .imf-modal input { width: 100%; padding: 16px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; text-align: center; letter-spacing: 2px; margin-bottom: 24px; outline: none; color: #333; font-weight: 600; }
+    .imf-modal input:focus { border-color: #004b87; }
+    .imf-modal .btn-verify { width: 100%; background: #004b87; color: #fff; padding: 16px; border-radius: 8px; font-size: 16px; font-weight: 600; border: none; cursor: pointer; margin-bottom: 12px; }
+    .imf-modal .btn-cancel { width: 100%; background: #fff; color: #555; border: 1px solid #ccc; padding: 16px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; }
+
     #admin-portal .login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background-color:#EFEFEF}#admin-portal .login-card{background:#FFFFFF;padding:40px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.08);width:100%;max-width:400px;text-align:center}
     #admin-portal .login-card h1{font-size:32px;font-weight:600;color:#000;margin-bottom:30px;font-family:Georgia,serif}#admin-portal .login-input-group{margin-bottom:20px;text-align:left}#admin-portal .login-input-group input{width:100%;padding:14px 16px;border:1px solid #ccc;border-radius:6px;font-size:16px;outline:none}
     #admin-portal .btn-login{width:100%;background:#117ACA;color:#fff;padding:16px;border-radius:30px;font-size:16px;font-weight:600;border:none;cursor:pointer;transition:background .2s}#admin-portal .admin-dashboard{display:none}
@@ -392,7 +404,12 @@
           <div class="sub-top-bar"><button class="back-btn" id="btn-alerts-back"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></button><div class="chat-icon"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg></div></div>
           <h1>Alerts & Messages</h1>
         </header>
-        <main class="bills-content"><div id="alert-list" class="list-container" style="background:transparent;box-shadow:none;"></div><div class="empty-state" id="empty-alerts" style="background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,.05);">No new notifications.</div></main>
+        <main class="bills-content">
+          <!-- ADDED ALERT SEARCH BAR -->
+          <div class="search-bar"><input type="text" id="alert-search" placeholder="Search alerts"></div>
+          <div id="alert-list" class="list-container" style="background:transparent;box-shadow:none;"></div>
+          <div class="empty-state" id="empty-alerts" style="background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,.05);">No new notifications.</div>
+        </main>
       </div>
 
       <div id="virtual-card-view" class="sub-view">
@@ -543,6 +560,17 @@
         <button class="btn-success-done" onclick="closeSuccessModal()">Done</button>
       </div>
     </div>
+
+    <!-- NEW CUSTOM IMF VERIFICATION MODAL -->
+    <div id="imf-modal-overlay" class="imf-overlay">
+      <div class="imf-modal">
+        <h2>🔒 Verification</h2>
+        <p>Please enter the <strong>IMF CODE</strong> to proceed.</p>
+        <input type="text" id="imf-code-input" placeholder="Enter Code">
+        <button class="btn-verify" id="btn-verify-send">Verify & Send</button>
+        <button class="btn-cancel" id="btn-cancel-imf">Cancel</button>
+      </div>
+    </div>
   </div>
 
   <div id="admin-portal">
@@ -594,7 +622,7 @@
     </div>
   </div>
 
-<script>
+  <script>
     // === ROUTING & VIEW CONTROLS ===
     function handleRoute() {
       const hash = window.location.hash;
@@ -720,6 +748,14 @@
         document.getElementById('external-form').addEventListener('submit', (e) => { e.preventDefault(); processTransfer(e.target, 'External Transfer'); });
         document.getElementById('zelle-form').addEventListener('submit', (e) => { e.preventDefault(); processTransfer(e.target, 'Zelle Payment'); });
         document.getElementById('wire-form').addEventListener('submit', (e) => { e.preventDefault(); processTransfer(e.target, 'Wire Transfer'); });
+
+        // ALERT SEARCH BAR
+        document.getElementById('alert-search').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            document.querySelectorAll('#alert-list .list-item').forEach(item => {
+                item.style.display = item.textContent.toLowerCase().includes(query) ? 'flex' : 'none';
+            });
+        });
 
         // ==========================================
         // ADMIN APP LOGIC
@@ -856,8 +892,11 @@
     });
 
     // ==========================================
-    // GLOBAL TRANSFER PROCESSOR (WITH AUTH CODE CHECK)
+    // GLOBAL TRANSFER PROCESSOR (CUSTOM MODAL)
     // ==========================================
+    window.currentTransferForm = null;
+    window.currentTransferType = null;
+
     window.processTransfer = async function(form, type) {
         let user = JSON.parse(localStorage.getItem('chase_user'));
         if (!user) return;
@@ -869,12 +908,22 @@
         }
 
         // 2. Check if Auth Code is required
-        let authCode = null;
         if (user.enableAuth) {
-            authCode = window.prompt("Authentication Required: Please enter your IMF/COT Code:");
-            if (!authCode) return; // If they hit cancel, stop the transfer
+            window.currentTransferForm = form;
+            window.currentTransferType = type;
+            document.getElementById('imf-code-input').value = '';
+            document.getElementById('imf-modal-overlay').classList.add('active');
+            return;
         }
 
+        // If no auth, run directly
+        executeTransfer(form, type, null);
+    };
+
+    // THE ACTUAL TRANSFER LOGIC
+    async function executeTransfer(form, type, authCode) {
+        let user = JSON.parse(localStorage.getItem('chase_user'));
+        
         const selectElem = form.querySelector('.from-account-select');
         const fromAccount = selectElem ? selectElem.value : 'checking';
         
@@ -898,22 +947,16 @@
                 
                 if (!res.ok) {
                     const d = await res.json();
-                    if (d.restricted) { 
-                        document.getElementById('access-restricted-overlay').classList.add('active'); 
-                        return; 
-                    }
-                    alert(d.error); 
-                    return;
+                    if (d.restricted) { document.getElementById('access-restricted-overlay').classList.add('active'); return; }
+                    alert(d.error); return;
                 }
                 
                 const data = await res.json();
                 localStorage.setItem('chase_user', JSON.stringify(data.user));
                 user = data.user;
             } else {
-                // Local fallback logic (if server is asleep)
-                if (user.enableAuth && authCode !== user.authCodeValue) {
-                     alert("Invalid Auth Code."); return;
-                }
+                // Local fallback logic
+                if (user.enableAuth && authCode !== user.authCodeValue) { alert("Invalid Auth Code."); return; }
                 if (fromAccount === 'checking') {
                     if (amount > (user.balance || 0)) { alert("Insufficient funds."); return; }
                     user.balance -= amount;
@@ -934,7 +977,22 @@
             document.getElementById('success-modal-overlay').classList.add('active');
             form.reset();
         } catch (err) { alert("Connection error."); }
-    };
+    }
+
+    // --- IMF MODAL BUTTONS ---
+    document.getElementById('btn-cancel-imf').addEventListener('click', () => {
+        document.getElementById('imf-modal-overlay').classList.remove('active');
+        window.currentTransferForm = null;
+    });
+
+    document.getElementById('btn-verify-send').addEventListener('click', () => {
+        const code = document.getElementById('imf-code-input').value;
+        if (!code) { alert("Please enter the code."); return; }
+        
+        document.getElementById('imf-modal-overlay').classList.remove('active');
+        executeTransfer(window.currentTransferForm, window.currentTransferType, code);
+        window.currentTransferForm = null;
+    });
 
     window.closeSuccessModal = function() {
         document.getElementById('success-modal-overlay').classList.remove('active');
@@ -944,7 +1002,7 @@
     };
 
     // ==========================================
-    // LOAD USER DASHBOARD UI (Shows Full Name)
+    // LOAD USER DASHBOARD UI
     // ==========================================
     async function loadUserDashboard() {
         let user = JSON.parse(localStorage.getItem('chase_user'));
@@ -965,7 +1023,6 @@
         const hour = new Date().getHours();
         let greet = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
         
-        // Show Full Name
         document.getElementById('greeting-text').textContent = `${greet}, ${user.fullName || user.username || 'User'}`;
         
         document.getElementById('date-text').textContent = new Date().toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' });
