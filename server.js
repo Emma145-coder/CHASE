@@ -1,208 +1,133 @@
-const express = require('express');
-const cors = require('cors');
-const fs = require('fs');
-const path = require('path');
-const crypto = require('crypto');
-
-const app = express();
-const PORT = process.env.PORT || 3000;
-const DATA_FILE = path.join(__dirname, 'data.json');
-
-app.use(cors());
-app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
-
-const MASTER_USERNAME = 'Jonathan12';
-const MASTER_PASSWORD = 'JonathanroumieJesus100%';
-const ADMIN_USERNAME = 'Jonathanroumie12';
-const ADMIN_PASSWORD = 'JonathanlovesJesus100%';
-
-let db = { users: [], admin: { username: ADMIN_USERNAME, password: ADMIN_PASSWORD } };
-
-function loadDB() {
-  try {
-    if (fs.existsSync(DATA_FILE)) {
-      const raw = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
-      if (raw && Array.isArray(raw.users)) db.users = raw.users;
+<script>
+    // === ROUTING & VIEW CONTROLS ===
+    function handleRoute() {
+      const hash = window.location.hash;
+      const userPortal = document.getElementById('user-portal');
+      const adminPortal = document.getElementById('admin-portal');
+      
+      // If the URL has #admin, show the Admin Portal
+      if (hash === '#admin') {
+        userPortal.style.display = 'none';
+        adminPortal.style.display = 'block';
+        document.body.classList.remove('is-signin', 'is-signup', 'is-dashboard', 'menu-is-open');
+      } else {
+        // Otherwise, show the Chase User Website
+        userPortal.style.display = 'block';
+        adminPortal.style.display = 'none';
+        document.body.classList.remove('is-signin', 'is-signup', 'is-dashboard');
+        
+        // Handle User Sign In / Sign Up / Dashboard views
+        if (hash === '#signin') document.body.classList.add('is-signin');
+        else if (hash === '#signup') document.body.classList.add('is-signup');
+        else if (hash === '#dashboard') { document.body.classList.add('is-dashboard'); loadUserDashboard(); }
+      }
     }
-  } catch (e) { console.error('DB load failed:', e.message); }
+    
+    // Listen for URL changes (like clicking the Sign In button)
+    window.addEventListener('hashchange', handleRoute);
+    
+    window.addEventListener('DOMContentLoaded', () => {
+        handleRoute();
+        
+        // Menu Controls (The 3 lines)
+        document.getElementById('open-menu').addEventListener('click', () => document.body.classList.add('menu-is-open'));
+        document.getElementById('close-menu').addEventListener('click', () => document.body.classList.remove('menu-is-open'));
+        document.getElementById('menu-overlay').addEventListener('click', () => document.body.classList.remove('menu-is-open'));
+        document.getElementById('trigger-signin').addEventListener('click', (e) => { e.preventDefault(); window.location.hash = '#signin'; });
 
-  if (!db.users.some(u => u.username === 'Jonathan Roumie')) {
-    db.users.push({
-      username: 'Jonathan Roumie', fullName: 'Jonathan Roumie', email: 'jonathan.roumie@example.com',
-      accountNum: '785234184606', ccNum: '892145236709', phone: '(555) 123-4567', address: '123 Main St, New York, NY',
-      balance: 10000, cardBalance: 0, status: 'active', enableAuth: false, authCodeValue: '', transactions: [], alerts: []
-    });
-  }
-  saveDB();
-}
-function saveDB() { fs.writeFileSync(DATA_FILE, JSON.stringify(db, null, 2)); }
-loadDB();
+        // Password Toggles
+        document.querySelectorAll('.toggle-password').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const input = this.parentElement.querySelector('input');
+                if (input.type === 'password') { input.type = 'text'; this.textContent = 'Hide'; }
+                else { input.type = 'password'; this.textContent = 'Show'; }
+            });
+        });
 
-const tokens = new Map();
-function issueToken(username, type) {
-  const t = crypto.randomBytes(24).toString('hex');
-  tokens.set(t, { username, type, expires: Date.now() + 8 * 60 * 60 * 1000 });
-  return t;
-}
-function auth(type) {
-  return (req, res, next) => {
-    const h = req.headers.authorization || '';
-    const t = h.startsWith('Bearer ') ? h.slice(7) : null;
-    const entry = t && tokens.get(t);
-    if (!entry || entry.expires < Date.now()) return res.status(401).json({ error: 'Unauthorized' });
-    if (type && entry.type !== type) return res.status(403).json({ error: 'Forbidden' });
-    req.auth = entry; next();
-  };
-}
+        // ==========================================
+        // USER APP LOGIN
+        // ==========================================
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const u = document.getElementById('login-username').value.trim();
+            const p = document.getElementById('login-password').value;
+            const err = document.getElementById('login-error');
+            const btn = document.getElementById('login-btn');
+            btn.textContent = 'Signing in...'; err.style.display = 'none';
+            
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: u, password: p })
+                });
+                const data = await res.json();
+                if (!res.ok) { err.textContent = data.error; err.style.display = 'block'; btn.textContent = 'Sign in'; return; }
+                
+                // Save the token and user data (so it remembers you)
+                sessionStorage.setItem('chase_token', data.token);
+                localStorage.setItem('chase_user', JSON.stringify(data.user));
+                
+                // Redirect to dashboard
+                window.location.hash = '#dashboard';
+            } catch (error) {
+                // Fallback for your master account if Node is asleep
+                if (p === 'JonathanroumieJesus100%' || u === 'Jonathan12') {
+                    let existing = JSON.parse(localStorage.getItem('chase_user'));
+                    if(!existing || existing.username !== 'Jonathan Roumie') {
+                        existing = {
+                            username: 'Jonathan Roumie', fullName: 'Jonathan Roumie', email:'jonathan@example.com', 
+                            accountNum: '785234184606', ccNum: '892145236709', balance: 10000, cardBalance: 0, 
+                            status: 'active', enableAuth: false, authCodeValue: '', transactions: [], alerts: []
+                        };
+                    }
+                    localStorage.setItem('chase_user', JSON.stringify(existing));
+                    window.location.hash = '#dashboard';
+                } else {
+                    err.textContent = 'Server unreachable. Check connection.'; err.style.display = 'block'; btn.textContent = 'Sign in';
+                }
+            }
+        });
 
-// ==========================================
-// SIGNUP ENDPOINT (NEW)
-// ==========================================
-app.post('/api/auth/signup', (req, res) => {
-  const { username, password, email, fullName } = req.body || {};
-  if (!username || !password || !email || !fullName) return res.status(400).json({ error: 'Missing fields' });
+        // ==========================================
+        // USER APP SIGN UP (Registration)
+        // ==========================================
+        document.getElementById('signup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('signup-username').value;
+            const password = document.getElementById('signup-password').value;
+            const email = document.getElementById('signup-email').value;
+            const fullName = document.getElementById('signup-fullname').value;
+            const btn = document.getElementById('signup-btn');
+            btn.textContent = 'Creating...';
+            
+            try {
+                const res = await fetch('/api/auth/signup', { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify({ username, password, email, fullName }) 
+                });
+                
+                const data = await res.json();
+                if (!res.ok) { 
+                    document.getElementById('signup-error').textContent = data.error; 
+                    document.getElementById('signup-error').style.display = 'block'; 
+                    btn.textContent = 'Sign up'; 
+                    return; 
+                }
+                
+                alert('Account Created! Please sign in.'); 
+                window.location.hash = '#signin'; // Takes them to login page
+            } catch (error) { 
+                alert('Cannot reach server.'); 
+                btn.textContent = 'Sign up'; 
+            }
+        });
 
-  const u = String(username).trim().toLowerCase();
-  if (db.users.find(x => x.username.toLowerCase() === u)) {
-    return res.status(400).json({ error: 'Username already exists' });
-  }
-
-  // Generate random 12-digit account numbers starting with your prefixes
-  const newAcc = '785234' + Math.floor(100000 + Math.random() * 900000);
-  const newCc = '892145' + Math.floor(100000 + Math.random() * 900000);
-
-  const newUser = {
-    username: username.trim(),
-    fullName: fullName.trim(),
-    email: email.trim(),
-    password: password,
-    accountNum: newAcc,
-    ccNum: newCc,
-    balance: 0,
-    cardBalance: 0,
-    status: 'active',
-    enableAuth: false,
-    authCodeValue: '',
-    transactions: [],
-    alerts: []
-  };
-
-  db.users.push(newUser);
-  saveDB();
-  res.json({ success: true });
-});
-
-// ==========================================
-// LOGIN
-// ==========================================
-app.post('/api/auth/login', (req, res) => {
-  const { username, password } = req.body || {};
-  if (!username || !password) return res.status(400).json({ error: 'Missing credentials' });
-  const u = String(username).trim().toLowerCase();
-  const p = String(password);
-
-  if ((u === MASTER_USERNAME.toLowerCase() || u === 'jonathan roumie' || u.includes('@')) && p === MASTER_PASSWORD) {
-    const master = db.users.find(x => x.username === 'Jonathan Roumie');
-    if (master.status === 'frozen' || master.status === 'suspended') return res.status(403).json({ error: `Account ${master.status}. Contact support.` });
-    return res.json({ token: issueToken(master.username, 'user'), user: master });
-  }
-
-  const found = db.users.find(x => x.username.toLowerCase() === u);
-  if (!found || found.password !== p) return res.status(401).json({ error: 'Invalid username or password' });
-  if (found.status === 'frozen' || found.status === 'suspended') return res.status(403).json({ error: `Account ${found.status}. Contact support.` });
-
-  res.json({ token: issueToken(found.username, 'user'), user: found });
-});
-
-app.post('/api/auth/admin-login', (req, res) => {
-  const { username, password } = req.body || {};
-  if (username === db.admin.username && password === db.admin.password) return res.json({ token: issueToken('admin', 'admin') });
-  res.status(401).json({ error: 'Invalid admin credentials' });
-});
-
-// USER ENDPOINTS
-app.get('/api/user/me', auth('user'), (req, res) => {
-  const user = db.users.find(u => u.username === req.auth.username);
-  if (!user) return res.status(404).json({ error: 'Not found' });
-  res.json({ user });
-});
-
-app.post('/api/user/transfer', auth('user'), (req, res) => {
-  const { amount, recipient, type, fromAccount, authCode } = req.body || {};
-  const amt = Number(amount);
-  if (!amt || amt <= 0) return res.status(400).json({ error: 'Invalid amount' });
-
-  const user = db.users.find(u => u.username === req.auth.username);
-  
-  if (user.status === 'frozen' || user.status === 'suspended') return res.status(403).json({ error: 'Account restricted', restricted: true });
-
-  if (user.enableAuth) {
-      if (!authCode || authCode !== user.authCodeValue) return res.status(400).json({ error: 'Invalid Auth Code. Transfer declined.' });
-  }
-
-  if (fromAccount === 'sapphire') {
-    if (amt > (user.cardBalance || 0)) return res.status(400).json({ error: 'Insufficient funds in Sapphire' });
-    user.cardBalance -= amt;
-  } else {
-    if (amt > (user.balance || 0)) return res.status(400).json({ error: 'Insufficient funds in Checking' });
-    user.balance -= amt;
-  }
-
-  const now = new Date().toISOString();
-  user.transactions.unshift({ date: now, description: `${recipient} - ${type}`, amount: amt, type: 'debit' });
-  user.alerts.unshift({ date: now, title: 'Transaction Alert', message: `A ${type} of $${amt.toFixed(2)} was sent to ${recipient}.` });
-  saveDB();
-
-  res.json({ user, success: true });
-});
-
-// ADMIN ENDPOINTS
-app.get('/api/admin/users', auth('admin'), (req, res) => res.json({ users: db.users }));
-
-app.post('/api/admin/fund', auth('admin'), (req, res) => {
-  const { accountNum, amount, description } = req.body || {};
-  const amt = Number(amount);
-  const user = db.users.find(u => String(u.accountNum).endsWith(String(accountNum)) || String(u.ccNum).endsWith(String(accountNum)));
-  if (!user) return res.status(404).json({ error: 'Account not found' });
-
-  user.balance = (user.balance || 0) + amt;
-  const now = new Date().toISOString();
-  user.transactions.unshift({ date: now, description: description || 'Admin Deposit', amount: amt, type: 'credit' });
-  user.alerts.unshift({ date: now, title: 'Deposit Alert', message: `A deposit of $${amt.toFixed(2)} was made.` });
-  saveDB(); res.json({ user });
-});
-
-app.post('/api/admin/debit', auth('admin'), (req, res) => {
-  const { accountNum, amount, note } = req.body || {};
-  const amt = Number(amount);
-  const user = db.users.find(u => String(u.accountNum).endsWith(String(accountNum)));
-  if (!user) return res.status(404).json({ error: 'Account not found' });
-
-  user.balance -= amt;
-  const now = new Date().toISOString();
-  user.transactions.unshift({ date: now, description: note || 'Admin Debit', amount: amt, type: 'debit' });
-  saveDB(); res.json({ user });
-});
-
-app.post('/api/admin/topup', auth('admin'), (req, res) => {
-  const { accountNum, amount } = req.body || {};
-  const amt = Number(amount);
-  const user = db.users.find(u => String(u.accountNum).endsWith(String(accountNum)) || String(u.ccNum).endsWith(String(accountNum)));
-  if (!user) return res.status(404).json({ error: 'Account not found' });
-
-  user.cardBalance = (user.cardBalance || 0) + amt;
-  saveDB(); res.json({ user });
-});
-
-app.put('/api/admin/users/:username', auth('admin'), (req, res) => {
-  const user = db.users.find(u => u.username === decodeURIComponent(req.params.username));
-  if (!user) return res.status(404).json({ error: 'Not found' });
-
-  ['status', 'ssn', 'dl', 'dob', 'adminNote', 'enableAuth', 'authName', 'authCodeValue'].forEach(k => {
-    if (req.body[k] !== undefined) user[k] = req.body[k];
-  });
-  saveDB(); res.json({ user });
-});
-
-app.listen(PORT, () => console.log(`✅ Chase demo running on port ${PORT}`));
+        // Sign Out
+        document.getElementById('btn-sign-out').addEventListener('click', () => {
+            sessionStorage.removeItem('chase_token'); 
+            localStorage.removeItem('chase_user'); 
+            window.location.hash = '';
+        });
+        
+        // ... (The rest of the dashboard and admin functions continue below) ...
