@@ -738,6 +738,7 @@
         document.getElementById('nav-accounts').addEventListener('click', resetToMainView);
         document.getElementById('nav-pay').addEventListener('click', () => dash.classList.add('show-pay'));
         document.getElementById('nav-pay-quick').addEventListener('click', () => dash.classList.add('show-pay'));
+        document.getElementById('nav-plan').addEventListener('click', resetToMainView);
         document.getElementById('btn-pay-back').addEventListener('click', resetToMainView);
         
         document.getElementById('trigger-internal').addEventListener('click', () => { dash.classList.remove('show-pay'); dash.classList.add('show-internal'); });
@@ -800,32 +801,27 @@
 
         // ADMIN: Debit Account
         document.getElementById('debit-form').addEventListener('submit', async (e) => {
-));
             e.preventDefault();
-            const                acct = document.getElementById(' userdebit-account').value =;
-            const amt = data document.getElementById('.userdebit-amount').value;
-;
-            const note = document.getElementById('           debit-note }').value;
-            else const tok = sessionStorage.getItem('chase_admin_token');
+            const acct = document.getElementById('debit-account').value;
+            const amt = document.getElementById('debit-amount').value;
+            const note = document.getElementById('debit-note').value;
+            const tok = sessionStorage.getItem('chase_admin_token');
             try {
- {
-                const res = await fetch('/api/admin/debit', {                method: 'POST', headers: { 'Content if-Type': ( 'userapplication/json', Authorization:.en 'Bearer 'able + tok }, bodyAuth: JSON.stringify &&({ accountNum: acct auth, amount:Code amt, note: !== note }) });
-                if (res user.ok) { alert.auth('Account DebCodeited!');Value document.getElementById('debit-form').)reset(); loadAdminUsers(); { }
-                else { alert('Account alert not found.');(" }
-            } catchInvalid (error) { alert(' AuthError deb Codeiting.'); }
-."        });
+                const res = await fetch('/api/admin/debit', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tok }, body: JSON.stringify({ accountNum: acct, amount: amt, note: note }) });
+                if (res.ok) { alert('Account Debited!'); document.getElementById('debit-form').reset(); loadAdminUsers(); }
+                else { alert('Account not found.'); }
+            } catch (error) { alert('Error debiting.'); }
+        });
 
-       ); // ADMIN: Top return-Up Sapphire
-;        document }
-.getElementById('sapphire-topup               -form'). ifaddEventListener(' (submit', asyncfrom (e)Account => {
+        // ADMIN: Top-Up Sapphire
+        document.getElementById('sapphire-topup-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const acct === = document.getElementById('sapphire- 'account').value;
-            const amtcheck = document.getElementById('sapphire-ingamount').value');
-            const tok = session {
-Storage.getItem('chase                   _admin_token');
+            const acct = document.getElementById('sapphire-account').value;
+            const amt = document.getElementById('sapphire-amount').value;
+            const tok = sessionStorage.getItem('chase_admin_token');
             try {
-                const if res = await fetch('/api/admin/topup', { method: 'POST (', headers: { 'Content-Type': 'applicationamount/json', Authorization: 'Bearer ' > + tok }, body: JSON.stringify({ account (Num: acct,user amount: amt.b }) });
-                if (res.ok) {alance alert(' ||Card Topped Up !'); document.getElementById('sapphire-topup-form').reset(); loadAdminUsers(); }
+                const res = await fetch('/api/admin/topup', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tok }, body: JSON.stringify({ accountNum: acct, amount: amt }) });
+                if (res.ok) { alert('Card Topped Up!'); document.getElementById('sapphire-topup-form').reset(); loadAdminUsers(); }
                 else { alert('Account not found.'); }
             } catch (error) { alert('Error topping up.'); }
         });
@@ -837,70 +833,72 @@ Storage.getItem('chase                   _admin_token');
             const type = document.getElementById('backdate-type').value;
             const amt = document.getElementById('backdate-amount').value;
             const desc = document.getElementById('backdate-desc').value;
-            const date0 = document.getElementById('))backdate-datetime').value;
-            const tok = sessionStorage.getItem {('chase_admin_token');
-            alert try {
-                const res =(" await fetch('/api/admin/backdate', { method:In 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' +su tok }, body: JSONfficient.stringify({ accountNum: acct, type, amount: amt, description: desc funds, date }) });
-                if (res.".ok) { alert(');Backdated transaction created!'); document return.getElementById('back;date-form').reset(); loadAdmin }
-Users(); }
-                else { alert('Account not found                   .'); }
-            } catch user (error).b { alert('Error backdatingalance.'); }
+            const date = document.getElementById('backdate-datetime').value;
+            const tok = sessionStorage.getItem('chase_admin_token');
+            try {
+                const res = await fetch('/api/admin/backdate', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tok }, body: JSON.stringify({ accountNum: acct, type, amount: amt, description: desc, date }) });
+                if (res.ok) { alert('Backdated transaction created!'); document.getElementById('backdate-form').reset(); loadAdminUsers(); }
+                else { alert('Account not found.'); }
+            } catch (error) { alert('Error backdating.'); }
         });
 
- -=        // ADMIN: Manage amount User Modal;
- Functions
-        window.openAdminModal = function               (username) } {
-            if (!window.admin elseUsers) return;
-            const u = window {
-.adminUsers.find(x => x.username ===                    username);
+        // ADMIN: Manage User Modal Functions
+        window.openAdminModal = function(username) {
+            if (!window.adminUsers) return;
+            const u = window.adminUsers.find(x => x.username === username);
             if (!u) return;
 
             document.getElementById('modal-username').value = u.username;
-            document.getElementById('modal-name if').value = u.fullName ( || u.username;
-            document.getElementById('modal-amountemail').value = u.email || '';
-            document.getElementById(' >modal-ssn').value ( = u.ssn || '';
-            document.getElementById('modal-dl').value = uuser.dl || '';
-            document.getElementById('modal-dob').value =.card u.dob || '';
+            document.getElementById('modal-name').value = u.fullName || u.username;
+            document.getElementById('modal-email').value = u.email || '';
+            document.getElementById('modal-ssn').value = u.ssn || '';
+            document.getElementById('modal-dl').value = u.dl || '';
+            document.getElementById('modal-dob').value = u.dob || '';
             
-            document.getElementByIdBalance('modal-checking-num').text ||Content = u.accountNum ? u.account Num.slice(-4) : '----';
-0            document.getElementById('modal-checking-bal))').textContent = (u.balance ||  {0).toFixed(2);
-            document alert.getElementById('modal-s("avings-numIn').textContent = u.ccNum ?su u.ccNum.slice(-4fficient) : '----';
-            document.getElementById('modal funds-sapphire-bal').textContent = (u.cardBalance || ."0).toFixed(2););
+            document.getElementById('modal-checking-num').textContent = u.accountNum ? u.accountNum.slice(-4) : '----';
+            document.getElementById('modal-checking-bal').textContent = (u.balance || 0).toFixed(2);
+            document.getElementById('modal-savings-num').textContent = u.ccNum ? u.ccNum.slice(-4) : '----';
+            document.getElementById('modal-sapphire-bal').textContent = (u.cardBalance || 0).toFixed(2);
             
-            document.getElementById('modal return-status').value = u;.status || 'active';
-            document.getElementById(' }
-modal-note').                   value = u user.adminNote || '';
+            document.getElementById('modal-status').value = u.status || 'active';
+            document.getElementById('modal-note').value = u.adminNote || '';
             
             document.getElementById('modal-enable-auth').checked = u.enableAuth || false;
-            document.getElementById('modal-auth-code').value = u.auth.cardCodeValue || '';
+            document.getElementById('modal-auth-code').value = u.authCodeValue || '';
             
-            document.getElementByIdBalance('manage-user-modal').classList.add(' -=active');
+            document.getElementById('manage-user-modal').classList.add('active');
         };
 
-        window.closeAdminModal = amount function() { document.getElementById(';
-manage-user-modal').classList.remove               ('active'); };
+        window.closeAdminModal = function() { document.getElementById('manage-user-modal').classList.remove('active'); };
 
-        // ADMIN: }
- Save Manage User Changes
-        document               .getElementById('manage-user-form').addEventListener('submit', user async (e) => {
-            e.preventDefault.trans();
-            constactions username = document.getElementById('modal-username').value;
- =            const status = document.getElementById('modal-status').value;
-            const user note = document.getElementById('modal-n.transote').value;
-            const enableactionsAuth = document.getElementById('modal-enable-auth ||').checked;
-            const authCodeValue = document.getElementById [];
-('modal-auth-code').value;
+        // ADMIN: Save Manage User Changes
+        document.getElementById('manage-user-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('modal-username').value;
+            const status = document.getElementById('modal-status').value;
+            const note = document.getElementById('modal-note').value;
+            const enableAuth = document.getElementById('modal-enable-auth').checked;
+            const authCodeValue = document.getElementById('modal-auth-code').value;
             
-                           const tok = sessionStorage.getItem('chase_admin_token');
+            const tok = sessionStorage.getItem('chase_admin_token');
             
- user            try {
-                const res = await fetch('/.transapi/admin/users/' + encodeURIComponent(username),actions {
-                   .un method: 'PUT',
-                    headersshift: { 'Content-Type':({ 'application/json', Authorization: 'Bearer date ' + tok },
-                    body:: JSON.stringify({ status, adminNote: note, enableAuth, authCodeValue })
+            try {
+                const res = await fetch('/api/admin/users/' + encodeURIComponent(username), {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tok },
+                    body: JSON.stringify({ status, adminNote: note, enableAuth, authCodeValue })
                 });
-                if (res.ok) { alert('User settings updated new successfully!'); closeAdminModal(); loadAdminUsers(); }
-                else { alert('Failed to update user.'); }
+                if (res.ok) { 
+                    alert('User settings updated successfully!'); 
+                    closeAdminModal(); 
+                    loadAdminUsers(); 
+                } else {
+                    if (res.status === 401) {
+                        alert('Your Admin session has expired. Please click "Sign Off" and log in again.');
+                    } else {
+                        alert('Failed to update user. Check server logs.');
+                    }
+                }
             } catch (error) { alert('Error updating user.'); }
         });
     });
@@ -963,7 +961,19 @@ manage-user-modal').classList.remove               ('active'); };
                 }
                 
                 const data = await res.json();
-                localStorage.setItem('chase_user', JSON.stringify(data.user Date().toISOString(), description: `Transfer to ${recipient}`, amount: amount, type: 'debit' });
+                localStorage.setItem('chase_user', JSON.stringify(data.user));
+                user = data.user;
+            } else {
+                if (user.enableAuth && authCode !== user.authCodeValue) { alert("Invalid Auth Code."); return; }
+                if (fromAccount === 'checking') {
+                    if (amount > (user.balance || 0)) { alert("Insufficient funds."); return; }
+                    user.balance -= amount;
+                } else {
+                    if (amount > (user.cardBalance || 0)) { alert("Insufficient funds."); return; }
+                    user.cardBalance -= amount;
+                }
+                user.transactions = user.transactions || [];
+                user.transactions.unshift({ date: new Date().toISOString(), description: `Transfer to ${recipient}`, amount: amount, type: 'debit' });
                 localStorage.setItem('chase_user', JSON.stringify(user));
             }
 
