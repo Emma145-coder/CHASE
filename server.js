@@ -162,21 +162,12 @@ app.post('/api/admin/backdate', auth('admin'), (req, res) => {
 
   const txDate = date ? new Date(date).toISOString() : new Date().toISOString();
   
-  // Add to history
+  // THIS LINE ADDS IT TO PAY BILLS
   user.transactions.unshift({ date: txDate, description: `${description} - Posted`, amount: amt, type: type });
   
-  // Add to Alerts
+  // THIS LINE ADDS IT TO ALERTS & MESSAGES
   user.alerts.unshift({ date: txDate, title: 'Backdated Transaction', message: `A ${type} of $${amt.toFixed(2)} was posted for ${description}.` });
   
-  saveDB(); res.json({ user });
-});
-
-app.put('/api/admin/users/:username', auth('admin'), (req, res) => {
-  const user = db.users.find(u => u.username === decodeURIComponent(req.params.username));
-  if (!user) return res.status(404).json({ error: 'Not found' });
-  ['status', 'ssn', 'dl', 'dob', 'adminNote', 'enableAuth', 'authName', 'authCodeValue'].forEach(k => {
-    if (req.body[k] !== undefined) user[k] = req.body[k];
-  });
   saveDB(); res.json({ user });
 });
 
