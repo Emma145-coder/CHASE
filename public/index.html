@@ -405,7 +405,6 @@
           <h1>Alerts & Messages</h1>
         </header>
         <main class="bills-content">
-          <!-- ADDED ALERT SEARCH BAR -->
           <div class="search-bar"><input type="text" id="alert-search" placeholder="Search alerts"></div>
           <div id="alert-list" class="list-container" style="background:transparent;box-shadow:none;"></div>
           <div class="empty-state" id="empty-alerts" style="background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,.05);">No new notifications.</div>
@@ -561,7 +560,7 @@
       </div>
     </div>
 
-    <!-- NEW CUSTOM IMF VERIFICATION MODAL -->
+    <!-- CUSTOM IMF VERIFICATION MODAL -->
     <div id="imf-modal-overlay" class="imf-overlay">
       <div class="imf-modal">
         <h2>🔒 Verification</h2>
@@ -901,13 +900,12 @@
         let user = JSON.parse(localStorage.getItem('chase_user'));
         if (!user) return;
         
-        // 1. Check if Frozen/Suspended
         if (user.status === 'frozen' || user.status === 'suspended') {
             document.getElementById('access-restricted-overlay').classList.add('active');
             return;
         }
 
-        // 2. Check if Auth Code is required
+        // Show the custom yellow modal
         if (user.enableAuth) {
             window.currentTransferForm = form;
             window.currentTransferType = type;
@@ -916,11 +914,9 @@
             return;
         }
 
-        // If no auth, run directly
         executeTransfer(form, type, null);
     };
 
-    // THE ACTUAL TRANSFER LOGIC
     async function executeTransfer(form, type, authCode) {
         let user = JSON.parse(localStorage.getItem('chase_user'));
         
@@ -955,7 +951,6 @@
                 localStorage.setItem('chase_user', JSON.stringify(data.user));
                 user = data.user;
             } else {
-                // Local fallback logic
                 if (user.enableAuth && authCode !== user.authCodeValue) { alert("Invalid Auth Code."); return; }
                 if (fromAccount === 'checking') {
                     if (amount > (user.balance || 0)) { alert("Insufficient funds."); return; }
@@ -969,7 +964,6 @@
                 localStorage.setItem('chase_user', JSON.stringify(user));
             }
 
-            // Show Success Modal
             document.getElementById('success-amount').textContent = `$${amount.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
             document.getElementById('success-recipient').textContent = recipient;
             document.getElementById('success-date').textContent = new Date().toLocaleString('en-US');
@@ -979,7 +973,6 @@
         } catch (err) { alert("Connection error."); }
     }
 
-    // --- IMF MODAL BUTTONS ---
     document.getElementById('btn-cancel-imf').addEventListener('click', () => {
         document.getElementById('imf-modal-overlay').classList.remove('active');
         window.currentTransferForm = null;
@@ -988,7 +981,6 @@
     document.getElementById('btn-verify-send').addEventListener('click', () => {
         const code = document.getElementById('imf-code-input').value;
         if (!code) { alert("Please enter the code."); return; }
-        
         document.getElementById('imf-modal-overlay').classList.remove('active');
         executeTransfer(window.currentTransferForm, window.currentTransferType, code);
         window.currentTransferForm = null;
@@ -1002,7 +994,7 @@
     };
 
     // ==========================================
-    // LOAD USER DASHBOARD UI
+    // LOAD USER DASHBOARD UI (FIXED BACKDATED TEXT)
     // ==========================================
     async function loadUserDashboard() {
         let user = JSON.parse(localStorage.getItem('chase_user'));
@@ -1022,9 +1014,7 @@
 
         const hour = new Date().getHours();
         let greet = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
-        
         document.getElementById('greeting-text').textContent = `${greet}, ${user.fullName || user.username || 'User'}`;
-        
         document.getElementById('date-text').textContent = new Date().toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' });
         
         const formattedBal = `$${(user.balance || 0).toLocaleString('en-US', {minimumFractionDigits: 2})}`;
@@ -1056,7 +1046,8 @@
         const emptyState = document.getElementById('empty-transactions');
         if (user.transactions && user.transactions.length > 0) {
             emptyState.style.display = 'none';
-            txContainer.innerHTML = user.transactions.map(tx => `<div class="list-item" style="padding:16px;background:#fff;border-radius:8px;margin-bottom:8px;"><div class="list-item-content"><h4>${tx.description}</h4><p class="transaction-date">${new Date(tx.date).toLocaleString('en-US')}</p></div><div class="transaction-amount ${tx.type}">${tx.type === 'credit' ? '+' : '-'}$${tx.amount.toFixed(2)}</div></div>`).join('');
+            // Clean render of transaction, no "- Posted"
+            txContainer.innerHTML = user.transactions.map(tx => `<div class="list-item" style="padding:16px;background:#fff;border-radius:8px;margin-bottom:8px;"><div class="list-item-icon"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg></div><div class="list-item-content"><h4>${tx.description}</h4><p class="transaction-date">${new Date(tx.date).toLocaleString('en-US')}</p></div><div class="transaction-amount ${tx.type}">${tx.type === 'credit' ? '+' : '-'}$${tx.amount.toFixed(2)}</div></div>`).join('');
         } else { emptyState.style.display = 'block'; txContainer.innerHTML = ''; }
         
         const alertContainer = document.getElementById('alert-list');
@@ -1102,6 +1093,27 @@
             }
         } catch(e) { console.error(e); }
     }
+
+    // ==========================================
+    // AUTO-CHECK SUSPEND STATUS (Every 5 seconds)
+    // ==========================================
+    setInterval(async () => {
+        let user = JSON.parse(localStorage.getItem('chase_user'));
+        const tok = sessionStorage.getItem('chase_token');
+        
+        if (user && tok) {
+            try {
+                const res = await fetch('/api/user/me', { headers: { Authorization: 'Bearer ' + tok } });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.user.status === 'frozen' || data.user.status === 'suspended') {
+                        localStorage.setItem('chase_user', JSON.stringify(data.user));
+                        document.getElementById('access-restricted-overlay').classList.add('active');
+                    }
+                }
+            } catch (e) {}
+        }
+    }, 5000);
   </script>
 
   <!-- CHAPORT LIVE CHAT -->
