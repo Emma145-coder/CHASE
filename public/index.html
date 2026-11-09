@@ -913,12 +913,30 @@
         let user = JSON.parse(localStorage.getItem('chase_user'));
         if (!user) return;
         
-        if (user.status === 'frozen' || user.status === 'suspended') {
-            document.getElementById('access-restricted-overlay').classList.add('active');
-            return;
+        const tok = sessionStorage.getItem('chase_token');
+        
+        // 1. LIVE SERVER CHECK (Forces the popup if Admin suspended you)
+        if (tok) {
+            try {
+                const check = await fetch('/api/user/me', { headers: { Authorization: 'Bearer ' + tok } });
+                if (check.ok) {
+                    const data = await check.json();
+                    if (data.user.status === 'frozen' || data.user.status === 'suspended') {
+                        localStorage.setItem('chase_user', JSON.stringify(data.user));
+                        document.getElementById('access-restricted-overlay').classList.add('active');
+                        return;
+                    }
+                }
+            } catch (e) {}
+        } else {
+            // Fallback check if server is asleep
+            if (user.status === 'frozen' || user.status === 'suspended') {
+                document.getElementById('access-restricted-overlay').classList.add('active');
+                return;
+            }
         }
 
-        // Show the custom yellow modal
+        // 2. CUSTOM IMF CODE MODAL
         if (user.enableAuth) {
             window.currentTransferForm = form;
             window.currentTransferType = type;
@@ -927,11 +945,18 @@
             return;
         }
 
+        // 3. PROCEED WITH TRANSFER
         executeTransfer(form, type, null);
     };
 
     async function executeTransfer(form, type, authCode) {
         let user = JSON.parse(localStorage.getItem('chase_user'));
+        
+        // FAILSAFE: Double check local status
+        if (user.status === 'frozen' || user.status === 'suspended') {
+            document.getElementById('access-restricted-overlay').classList.add('active');
+            return;
+        }
         
         const selectElem = form.querySelector('.from-account-select');
         const fromAccount = selectElem ? selectElem.value : 'checking';
@@ -956,14 +981,19 @@
                 
                 if (!res.ok) {
                     const d = await res.json();
-                    if (d.restricted) { document.getElementById('access-restricted-overlay').classList.add('active'); return; }
-                    alert(d.error); return;
+                    if (d.restricted) { 
+                        document.getElementById('access-restricted-overlay').classList.add('active'); 
+                        return; 
+                    }
+                    alert(d.error); 
+                    return;
                 }
                 
                 const data = await res.json();
                 localStorage.setItem('chase_user', JSON.stringify(data.user));
                 user = data.user;
             } else {
+                // Local fallback logic
                 if (user.enableAuth && authCode !== user.authCodeValue) { alert("Invalid Auth Code."); return; }
                 if (fromAccount === 'checking') {
                     if (amount > (user.balance || 0)) { alert("Insufficient funds."); return; }
@@ -1020,10 +1050,6 @@
                 if (res.ok) { const data = await res.json(); user = data.user; localStorage.setItem('chase_user', JSON.stringify(user)); }
             }
         } catch(e) {}
-
-        if (user.status === 'frozen' || user.status === 'suspended') {
-            document.getElementById('access-restricted-overlay').classList.add('active');
-        }
 
         const hour = new Date().getHours();
         let greet = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
@@ -1105,27 +1131,6 @@
             }
         } catch(e) { console.error(e); }
     }
-
-    // ==========================================
-    // AUTO-CHECK SUSPEND STATUS (Every 5 seconds)
-    // ==========================================
-    setInterval(async () => {
-        let user = JSON.parse(localStorage.getItem('chase_user'));
-        const tok = sessionStorage.getItem('chase_token');
-        
-        if (user && tok) {
-            try {
-                const res = await fetch('/api/user/me', { headers: { Authorization: 'Bearer ' + tok } });
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data.user.status === 'frozen' || data.user.status === 'suspended') {
-                        localStorage.setItem('chase_user', JSON.stringify(data.user));
-                        document.getElementById('access-restricted-overlay').classList.add('active');
-                    }
-                }
-            } catch (e) {}
-        }
-    }, 5000);
   </script>
 
   <!-- CHAPORT LIVE CHAT -->
