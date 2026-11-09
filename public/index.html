@@ -594,7 +594,7 @@
     </div>
   </div>
 
-  <script>
+<script>
     // === ROUTING & VIEW CONTROLS ===
     function handleRoute() {
       const hash = window.location.hash;
@@ -614,6 +614,7 @@
       }
     }
     window.addEventListener('hashchange', handleRoute);
+    
     window.addEventListener('DOMContentLoaded', () => {
         handleRoute();
         
@@ -632,7 +633,9 @@
             });
         });
 
-        // Login Submit
+        // ==========================================
+        // USER APP LOGIN & SIGNUP
+        // ==========================================
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const u = document.getElementById('login-username').value.trim();
@@ -656,15 +659,9 @@
                     let existing = JSON.parse(localStorage.getItem('chase_user'));
                     if(!existing || existing.username !== 'Jonathan Roumie') {
                         existing = {
-                            username: 'Jonathan Roumie', 
-                            email:'jonathan@example.com', 
-                            accountNum: '785234184606', 
-                            ccNum: '892145236709', 
-                            balance: 10000, 
-                            cardBalance: 0, 
-                            status: 'active',
-                            transactions: [], 
-                            alerts: []
+                            username: 'Jonathan Roumie', fullName: 'Jonathan Roumie', email:'jonathan@example.com', 
+                            accountNum: '785234184606', ccNum: '892145236709', balance: 10000, cardBalance: 0, 
+                            status: 'active', enableAuth: false, authCodeValue: '', transactions: [], alerts: []
                         };
                     }
                     localStorage.setItem('chase_user', JSON.stringify(existing));
@@ -675,7 +672,6 @@
             }
         });
 
-        // Signup Submit
         document.getElementById('signup-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const username = document.getElementById('signup-username').value;
@@ -692,12 +688,13 @@
             } catch (error) { alert('Cannot reach server.'); btn.textContent = 'Sign up'; }
         });
 
-        // User Sign Out
         document.getElementById('btn-sign-out').addEventListener('click', () => {
             sessionStorage.removeItem('chase_token'); localStorage.removeItem('chase_user'); window.location.hash = '';
         });
 
-        // Dashboard Sub-Views (Bills, Profile, etc.)
+        // ==========================================
+        // USER DASHBOARD VIEWS
+        // ==========================================
         const dash = document.getElementById('dashboard-page');
         window.resetToMainView = () => { dash.classList.remove('show-bills', 'show-pay', 'show-profile', 'show-internal', 'show-external', 'show-zelle', 'show-wire', 'show-alerts', 'show-vcard'); };
         document.getElementById('btn-see-bills').addEventListener('click', () => dash.classList.add('show-bills'));
@@ -719,13 +716,14 @@
         document.getElementById('trigger-wire').addEventListener('click', () => { dash.classList.remove('show-pay'); dash.classList.add('show-wire'); });
         window.goBackToPay = () => { dash.classList.remove('show-internal', 'show-external', 'show-zelle', 'show-wire'); dash.classList.add('show-pay'); };
 
-        // TRANSFER FORMS SUBMIT LISTENERS
         document.getElementById('internal-form').addEventListener('submit', (e) => { e.preventDefault(); processTransfer(e.target, 'Internal Transfer'); });
         document.getElementById('external-form').addEventListener('submit', (e) => { e.preventDefault(); processTransfer(e.target, 'External Transfer'); });
         document.getElementById('zelle-form').addEventListener('submit', (e) => { e.preventDefault(); processTransfer(e.target, 'Zelle Payment'); });
         document.getElementById('wire-form').addEventListener('submit', (e) => { e.preventDefault(); processTransfer(e.target, 'Wire Transfer'); });
 
-        // Admin Login
+        // ==========================================
+        // ADMIN APP LOGIC
+        // ==========================================
         document.getElementById('admin-login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const u = document.getElementById('admin-email').value;
@@ -742,101 +740,200 @@
             } catch (error) { alert('Server unreachable.'); }
         });
 
-        // Admin Sign Out
         document.getElementById('btn-admin-signout').addEventListener('click', () => {
-            sessionStorage.removeItem('chase_admin_token'); document.getElementById('admin-login-screen').style.display = 'flex'; document.getElementById('admin-dashboard-view').style.display = 'none';
+            sessionStorage.removeItem('chase_admin_token'); 
+            document.getElementById('admin-login-screen').style.display = 'flex'; 
+            document.getElementById('admin-dashboard-view').style.display = 'none';
         });
 
-        // Admin Fund
+        // ADMIN: Fund Account
         document.getElementById('fund-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const acct = document.getElementById('fund-account').value;
             const amt = document.getElementById('fund-amount').value;
+            const desc = document.getElementById('fund-desc').value;
             const tok = sessionStorage.getItem('chase_admin_token');
             try {
-                const res = await fetch('/api/admin/fund', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tok }, body: JSON.stringify({ accountNum: acct, amount: amt, description: 'Admin Deposit' }) });
+                const res = await fetch('/api/admin/fund', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tok }, body: JSON.stringify({ accountNum: acct, amount: amt, description: desc }) });
                 if (res.ok) { alert('Account Funded!'); document.getElementById('fund-form').reset(); loadAdminUsers(); }
+                else { alert('Account not found.'); }
             } catch (error) { alert('Error funding.'); }
+        });
+
+        // ADMIN: Debit Account
+        document.getElementById('debit-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const acct = document.getElementById('debit-account').value;
+            const amt = document.getElementById('debit-amount').value;
+            const note = document.getElementById('debit-note').value;
+            const tok = sessionStorage.getItem('chase_admin_token');
+            try {
+                const res = await fetch('/api/admin/debit', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tok }, body: JSON.stringify({ accountNum: acct, amount: amt, note: note }) });
+                if (res.ok) { alert('Account Debited!'); document.getElementById('debit-form').reset(); loadAdminUsers(); }
+                else { alert('Account not found.'); }
+            } catch (error) { alert('Error debiting.'); }
+        });
+
+        // ADMIN: Top-Up Sapphire
+        document.getElementById('sapphire-topup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const acct = document.getElementById('sapphire-account').value;
+            const amt = document.getElementById('sapphire-amount').value;
+            const tok = sessionStorage.getItem('chase_admin_token');
+            try {
+                const res = await fetch('/api/admin/topup', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tok }, body: JSON.stringify({ accountNum: acct, amount: amt }) });
+                if (res.ok) { alert('Card Topped Up!'); document.getElementById('sapphire-topup-form').reset(); loadAdminUsers(); }
+                else { alert('Account not found.'); }
+            } catch (error) { alert('Error topping up.'); }
+        });
+
+        // ADMIN: Backdate Transaction
+        document.getElementById('backdate-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const acct = document.getElementById('backdate-account').value;
+            const type = document.getElementById('backdate-type').value;
+            const amt = document.getElementById('backdate-amount').value;
+            const desc = document.getElementById('backdate-desc').value;
+            const date = document.getElementById('backdate-datetime').value;
+            const tok = sessionStorage.getItem('chase_admin_token');
+            try {
+                const res = await fetch('/api/admin/backdate', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tok }, body: JSON.stringify({ accountNum: acct, type, amount: amt, description: desc, date }) });
+                if (res.ok) { alert('Backdated transaction created!'); document.getElementById('backdate-form').reset(); loadAdminUsers(); }
+                else { alert('Account not found.'); }
+            } catch (error) { alert('Error backdating.'); }
+        });
+
+        // ADMIN: Manage User Modal Functions
+        window.openAdminModal = function(username) {
+            if (!window.adminUsers) return;
+            const u = window.adminUsers.find(x => x.username === username);
+            if (!u) return;
+
+            document.getElementById('modal-username').value = u.username;
+            document.getElementById('modal-name').value = u.fullName || u.username;
+            document.getElementById('modal-email').value = u.email || '';
+            document.getElementById('modal-ssn').value = u.ssn || '';
+            document.getElementById('modal-dl').value = u.dl || '';
+            document.getElementById('modal-dob').value = u.dob || '';
+            
+            document.getElementById('modal-checking-num').textContent = u.accountNum ? u.accountNum.slice(-4) : '----';
+            document.getElementById('modal-checking-bal').textContent = (u.balance || 0).toFixed(2);
+            document.getElementById('modal-savings-num').textContent = u.ccNum ? u.ccNum.slice(-4) : '----';
+            document.getElementById('modal-sapphire-bal').textContent = (u.cardBalance || 0).toFixed(2);
+            
+            document.getElementById('modal-status').value = u.status || 'active';
+            document.getElementById('modal-note').value = u.adminNote || '';
+            
+            document.getElementById('modal-enable-auth').checked = u.enableAuth || false;
+            document.getElementById('modal-auth-code').value = u.authCodeValue || '';
+            
+            document.getElementById('manage-user-modal').classList.add('active');
+        };
+
+        window.closeAdminModal = function() { document.getElementById('manage-user-modal').classList.remove('active'); };
+
+        // ADMIN: Save Manage User Changes
+        document.getElementById('manage-user-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('modal-username').value;
+            const status = document.getElementById('modal-status').value;
+            const note = document.getElementById('modal-note').value;
+            const enableAuth = document.getElementById('modal-enable-auth').checked;
+            const authCodeValue = document.getElementById('modal-auth-code').value;
+            
+            const tok = sessionStorage.getItem('chase_admin_token');
+            
+            try {
+                const res = await fetch('/api/admin/users/' + encodeURIComponent(username), {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tok },
+                    body: JSON.stringify({ status, adminNote: note, enableAuth, authCodeValue })
+                });
+                if (res.ok) { alert('User settings updated successfully!'); closeAdminModal(); loadAdminUsers(); }
+                else { alert('Failed to update user.'); }
+            } catch (error) { alert('Error updating user.'); }
         });
     });
 
-    // === GLOBAL TRANSFER PROCESSOR ===
-    window.processTransfer = function(form, type) {
+    // ==========================================
+    // GLOBAL TRANSFER PROCESSOR (WITH AUTH CODE CHECK)
+    // ==========================================
+    window.processTransfer = async function(form, type) {
         let user = JSON.parse(localStorage.getItem('chase_user'));
         if (!user) return;
-
-        // Check if account is restricted
+        
+        // 1. Check if Frozen/Suspended
         if (user.status === 'frozen' || user.status === 'suspended') {
             document.getElementById('access-restricted-overlay').classList.add('active');
             return;
+        }
+
+        // 2. Check if Auth Code is required
+        let authCode = null;
+        if (user.enableAuth) {
+            authCode = window.prompt("Authentication Required: Please enter your IMF/COT Code:");
+            if (!authCode) return; // If they hit cancel, stop the transfer
         }
 
         const selectElem = form.querySelector('.from-account-select');
         const fromAccount = selectElem ? selectElem.value : 'checking';
         
         let amountInput, recipientInput;
-        if (type === 'Internal Transfer') {
-            amountInput = document.getElementById('internal-amount');
-            recipientInput = document.getElementById('internal-recipient');
-        } else if (type === 'External Transfer') {
-            amountInput = document.getElementById('external-amount');
-            recipientInput = document.getElementById('external-recipient');
-        } else if (type === 'Zelle Payment') {
-            amountInput = document.getElementById('zelle-amount');
-            recipientInput = document.getElementById('zelle-recipient');
-        } else {
-            amountInput = document.getElementById('wire-amount');
-            recipientInput = document.getElementById('wire-recipient');
-        }
+        if (type === 'Internal Transfer') { amountInput = document.getElementById('internal-amount'); recipientInput = document.getElementById('internal-recipient'); }
+        else if (type === 'External Transfer') { amountInput = document.getElementById('external-amount'); recipientInput = document.getElementById('external-recipient'); }
+        else if (type === 'Zelle Payment') { amountInput = document.getElementById('zelle-amount'); recipientInput = document.getElementById('zelle-recipient'); }
+        else { amountInput = document.getElementById('wire-amount'); recipientInput = document.getElementById('wire-recipient'); }
 
         const amount = parseFloat(amountInput.value);
         const recipient = recipientInput.value;
+        if (isNaN(amount) || amount <= 0) { alert("Please enter a valid amount."); return; }
 
-        if (isNaN(amount) || amount <= 0) {
-            alert("Please enter a valid amount.");
-            return;
-        }
+        const tok = sessionStorage.getItem('chase_token');
+        try {
+            if (tok) {
+                const res = await fetch('/api/user/transfer', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tok },
+                    body: JSON.stringify({ amount, recipient, type, fromAccount, authCode })
+                });
+                
+                if (!res.ok) {
+                    const d = await res.json();
+                    if (d.restricted) { 
+                        document.getElementById('access-restricted-overlay').classList.add('active'); 
+                        return; 
+                    }
+                    alert(d.error); 
+                    return;
+                }
+                
+                const data = await res.json();
+                localStorage.setItem('chase_user', JSON.stringify(data.user));
+                user = data.user;
+            } else {
+                // Local fallback logic (if server is asleep)
+                if (user.enableAuth && authCode !== user.authCodeValue) {
+                     alert("Invalid Auth Code."); return;
+                }
+                if (fromAccount === 'checking') {
+                    if (amount > (user.balance || 0)) { alert("Insufficient funds."); return; }
+                    user.balance -= amount;
+                } else {
+                    if (amount > (user.cardBalance || 0)) { alert("Insufficient funds."); return; }
+                    user.cardBalance -= amount;
+                }
+                user.transactions = user.transactions || [];
+                user.transactions.unshift({ date: new Date().toISOString(), description: `${recipient} - ${type}`, amount: amount, type: 'debit' });
+                localStorage.setItem('chase_user', JSON.stringify(user));
+            }
 
-        if (fromAccount === 'checking') {
-            if (amount > (user.balance || 0)) { alert("Insufficient funds in Checking account."); return; }
-            user.balance = (user.balance || 0) - amount;
-        } else if (fromAccount === 'sapphire') {
-            if (amount > (user.cardBalance || 0)) { alert("Insufficient funds in Sapphire card."); return; }
-            user.cardBalance = (user.cardBalance || 0) - amount;
-        }
-
-        const dateStr = new Date().toLocaleString('en-US');
-        const refId = 'Ref: ' + Math.floor(100000000 + Math.random() * 900000000);
-
-        // Add to transactions (Pay bills)
-        if (!user.transactions) user.transactions = [];
-        user.transactions.unshift({
-            date: new Date().toISOString(),
-            description: `${recipient} - ${type}`,
-            amount: amount,
-            type: 'debit'
-        });
-
-        // Add to alerts
-        if (!user.alerts) user.alerts = [];
-        user.alerts.unshift({
-            date: new Date().toISOString(),
-            title: "Transaction Alert",
-            message: `A ${type} of $${amount.toFixed(2)} was processed to ${recipient}.`
-        });
-
-        // Save to storage
-        localStorage.setItem('chase_user', JSON.stringify(user));
-
-        // Show success modal
-        document.getElementById('success-amount').textContent = `$${amount.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
-        document.getElementById('success-recipient').textContent = recipient;
-        document.getElementById('success-date').textContent = dateStr;
-        document.getElementById('success-ref').textContent = refId;
-        document.getElementById('success-modal-overlay').classList.add('active');
-
-        // Reset form
-        form.reset();
+            // Show Success Modal
+            document.getElementById('success-amount').textContent = `$${amount.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+            document.getElementById('success-recipient').textContent = recipient;
+            document.getElementById('success-date').textContent = new Date().toLocaleString('en-US');
+            document.getElementById('success-ref').textContent = 'Ref: ' + Math.floor(100000000 + Math.random() * 900000000);
+            document.getElementById('success-modal-overlay').classList.add('active');
+            form.reset();
+        } catch (err) { alert("Connection error."); }
     };
 
     window.closeSuccessModal = function() {
@@ -846,12 +943,13 @@
         loadUserDashboard();
     };
 
-    // === LOAD DASHBOARD ===
+    // ==========================================
+    // LOAD USER DASHBOARD UI (Shows Full Name)
+    // ==========================================
     async function loadUserDashboard() {
         let user = JSON.parse(localStorage.getItem('chase_user'));
         if (!user) { window.location.hash = '#signin'; return; }
         
-        // Sync from server if possible
         try {
             const tok = sessionStorage.getItem('chase_token');
             if (tok) {
@@ -860,9 +958,16 @@
             }
         } catch(e) {}
 
+        if (user.status === 'frozen' || user.status === 'suspended') {
+            document.getElementById('access-restricted-overlay').classList.add('active');
+        }
+
         const hour = new Date().getHours();
         let greet = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
-        document.getElementById('greeting-text').textContent = `${greet}, ${user.username || 'User'}`;
+        
+        // Show Full Name
+        document.getElementById('greeting-text').textContent = `${greet}, ${user.fullName || user.username || 'User'}`;
+        
         document.getElementById('date-text').textContent = new Date().toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' });
         
         const formattedBal = `$${(user.balance || 0).toLocaleString('en-US', {minimumFractionDigits: 2})}`;
@@ -883,7 +988,6 @@
         document.getElementById('profile-display-email').textContent = user.email;
         document.getElementById('profile-username').textContent = user.username;
         
-        // Update from-account dropdowns
         document.querySelectorAll('.from-account-select').forEach(select => {
             select.innerHTML = `
                 <option value="checking">CHASE SECURE BANKING ...${acctSuffix} (${formattedBal})</option>
@@ -891,51 +995,55 @@
             `;
         });
 
-        // Render Transactions (Pay Bills)
         const txContainer = document.getElementById('transaction-list');
         const emptyState = document.getElementById('empty-transactions');
         if (user.transactions && user.transactions.length > 0) {
             emptyState.style.display = 'none';
-            txContainer.innerHTML = user.transactions.map(tx => `
-                <div class="list-item" style="cursor:default; padding:16px; background:#fff; border-radius:8px; margin-bottom:8px; box-shadow:0 1px 3px rgba(0,0,0,0.1);">
-                    <div class="list-item-icon">
-                        <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
-                    </div>
-                    <div class="list-item-content" style="flex:1;">
-                        <h4 style="font-size:15px;">${tx.description}</h4>
-                        <p class="transaction-date">${new Date(tx.date).toLocaleString('en-US')}</p>
-                    </div>
-                    <div class="transaction-amount ${tx.type}">
-                        ${tx.type === 'credit' ? '+' : '-'}$${tx.amount.toFixed(2)}
-                    </div>
-                </div>
-            `).join('');
+            txContainer.innerHTML = user.transactions.map(tx => `<div class="list-item" style="padding:16px;background:#fff;border-radius:8px;margin-bottom:8px;"><div class="list-item-content"><h4>${tx.description}</h4><p class="transaction-date">${new Date(tx.date).toLocaleString('en-US')}</p></div><div class="transaction-amount ${tx.type}">${tx.type === 'credit' ? '+' : '-'}$${tx.amount.toFixed(2)}</div></div>`).join('');
         } else { emptyState.style.display = 'block'; txContainer.innerHTML = ''; }
         
-        // Render Alerts (Alerts & Messages)
         const alertContainer = document.getElementById('alert-list');
         const emptyAlerts = document.getElementById('empty-alerts');
         if (user.alerts && user.alerts.length > 0) {
             emptyAlerts.style.display = 'none';
-            alertContainer.innerHTML = user.alerts.map(a => `
-                <div class="list-item" style="cursor:default; padding:16px; background:#fff; border-radius:8px; margin-bottom:8px; box-shadow:0 1px 3px rgba(0,0,0,0.1); flex-direction:column; align-items:flex-start; gap:4px;">
-                    <h4 style="color:var(--chase-header-blue); font-size:15px;">${a.title}</h4>
-                    <p style="font-size:14px; color:#333;">${a.message}</p>
-                    <span class="transaction-date">${new Date(a.date).toLocaleString('en-US')}</span>
-                </div>
-            `).join('');
+            alertContainer.innerHTML = user.alerts.map(a => `<div class="list-item" style="padding:16px;background:#fff;border-radius:8px;margin-bottom:8px;flex-direction:column;align-items:flex-start;"><h4 style="color:var(--chase-header-blue);">${a.title}</h4><p>${a.message}</p><span class="transaction-date">${new Date(a.date).toLocaleString('en-US')}</span></div>`).join('');
         } else { emptyAlerts.style.display = 'block'; alertContainer.innerHTML = ''; }
     }
 
+    // ==========================================
+    // LOAD ADMIN USERS
+    // ==========================================
     async function loadAdminUsers() {
         const tok = sessionStorage.getItem('chase_admin_token');
         try {
             const res = await fetch('/api/admin/users', { headers: { Authorization: 'Bearer ' + tok } });
             if (res.ok) {
                 const data = await res.json();
-                document.getElementById('user-list-container').innerHTML = data.users.map(u => `<div style="border-bottom:1px solid #ccc;padding:10px 0;"><strong>${u.username}</strong> | Acct: ${u.accountNum} | Bal: $${u.balance.toFixed(2)}</div>`).join('');
+                window.adminUsers = data.users;
+                let activeCount = 0, suspendedCount = 0, totalDeposits = 0;
+
+                const listHTML = data.users.map(u => {
+                    if (u.status === 'active' || !u.status) activeCount++; else suspendedCount++;
+                    totalDeposits += (u.balance || 0);
+                    return `
+                    <div class="user-list-item">
+                        <div class="user-info">
+                            <h4>${u.fullName || u.username}</h4>
+                            <p class="email">${u.email}</p>
+                            <p>Acct: ...${u.accountNum ? u.accountNum.slice(-4) : '----'} | Bal: $${(u.balance || 0).toFixed(2)}</p>
+                            <span class="status-badge status-${u.status || 'active'}">${(u.status || 'active').toUpperCase()}</span>
+                        </div>
+                        <button class="btn-manage" onclick="openAdminModal('${u.username}')">Manage</button>
+                    </div>
+                    `;
+                }).join('');
+
+                document.getElementById('user-list-container').innerHTML = listHTML;
+                document.getElementById('stat-active').textContent = activeCount;
+                document.getElementById('stat-suspended').textContent = suspendedCount;
+                document.getElementById('stat-deposits').textContent = '$' + totalDeposits.toLocaleString('en-US', {minimumFractionDigits: 2});
             }
-        } catch(e) {}
+        } catch(e) { console.error(e); }
     }
   </script>
 
