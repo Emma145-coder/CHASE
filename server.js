@@ -94,6 +94,7 @@ app.get('/api/user/me', auth('user'), (req, res) => {
   res.json({ user });
 });
 
+// TRANSFERS (Formats name exactly like real bank: "Transfer to 12345")
 app.post('/api/user/transfer', auth('user'), (req, res) => {
   const { amount, recipient, type, fromAccount, authCode } = req.body || {};
   const amt = Number(amount);
@@ -101,6 +102,7 @@ app.post('/api/user/transfer', auth('user'), (req, res) => {
   const user = db.users.find(u => u.username === req.auth.username);
   if (user.status === 'frozen' || user.status === 'suspended') return res.status(403).json({ error: 'Account restricted', restricted: true });
   if (user.enableAuth && (!authCode || authCode !== user.authCodeValue)) return res.status(400).json({ error: 'Invalid Auth Code. Transfer declined.' });
+  
   if (fromAccount === 'sapphire') {
     if (amt > (user.cardBalance || 0)) return res.status(400).json({ error: 'Insufficient funds in Sapphire' });
     user.cardBalance -= amt;
@@ -109,7 +111,9 @@ app.post('/api/user/transfer', auth('user'), (req, res) => {
     user.balance -= amt;
   }
   const now = new Date().toISOString();
-  user.transactions.unshift({ date: now, description: `${recipient} - ${type}`, amount: amt, type: 'debit' });
+  
+  // CLEAN DESCRIPTION
+  user.transactions.unshift({ date: now, description: `Transfer to ${recipient}`, amount: amt, type: 'debit' });
   user.alerts.unshift({ date: now, title: 'Transaction Alert', message: `A ${type} of $${amt.toFixed(2)} was sent to ${recipient}.` });
   saveDB(); res.json({ user, success: true });
 });
@@ -123,7 +127,7 @@ app.post('/api/admin/fund', auth('admin'), (req, res) => {
   if (!user) return res.status(404).json({ error: 'Account not found' });
   user.balance = (user.balance || 0) + amt;
   const now = new Date().toISOString();
-  user.transactions.unshift({ date: now, description: description || 'Admin Deposit', amount: amt, type: 'credit' });
+  user.transactions.unshift({ date: now, description: description, amount: amt, type: 'credit' });
   user.alerts.unshift({ date: now, title: 'Deposit Alert', message: `A deposit of $${amt.toFixed(2)} was made.` });
   saveDB(); res.json({ user });
 });
@@ -135,7 +139,7 @@ app.post('/api/admin/debit', auth('admin'), (req, res) => {
   if (!user) return res.status(404).json({ error: 'Account not found' });
   user.balance -= amt;
   const now = new Date().toISOString();
-  user.transactions.unshift({ date: now, description: note || 'Admin Debit', amount: amt, type: 'debit' });
+  user.transactions.unshift({ date: now, description: note, amount: amt, type: 'debit' });
   saveDB(); res.json({ user });
 });
 
@@ -148,13 +152,12 @@ app.post('/api/admin/topup', auth('admin'), (req, res) => {
   saveDB(); res.json({ user });
 });
 
-// ADMIN: Backdate Transaction
+// BACKDATE TRANSACTION
 app.post('/api/admin/backdate', auth('admin'), (req, res) => {
   const { accountNum, type, amount, description, date } = req.body || {};
   const amt = Number(amount);
   if (!amt || amt <= 0) return res.status(400).json({ error: 'Invalid amount' });
 
-  // Look up by full number or last 4 digits
   const user = db.users.find(u => String(u.accountNum).endsWith(String(accountNum)) || String(u.accountNum) === String(accountNum));
   if (!user) return res.status(404).json({ error: 'Account not found' });
 
@@ -163,12 +166,20 @@ app.post('/api/admin/backdate', auth('admin'), (req, res) => {
 
   const txDate = date ? new Date(date).toISOString() : new Date().toISOString();
   
-  // THIS makes it look like a real transaction (No "Backdated" text)
+  // CLEAN DESCRIPTION - No "Posted" text
   user.transactions.unshift({ date: txDate, description: description, amount: amt, type: type });
-  
-  // THIS is the alert
   user.alerts.unshift({ date: txDate, title: 'Transaction Alert', message: `A ${type} of $${amt.toFixed(2)} was processed.` });
   
+  saveDB(); res.json({ user });
+});
+
+app.put('/api/admin/users/:username', auth('admin'), (req, res) => {
+  const decodedUsername = decodeURIComponent(req.params.username);
+  const user = db.users.find(u => u.username === decodedUsername);
+  if (!user) return res.status(404).json({ error: 'Not found' });
+  ['status', 'ssn', 'dl', 'dob', 'adminNote', 'enableAuth', 'authName', 'authCodeValue'].forEach(k => {
+    if (req.body[k] !== undefined) user[k] = req.body[k];
+  });
   saveDB(); res.json({ user });
 });
 
