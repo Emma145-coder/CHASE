@@ -158,6 +158,34 @@ app.post('/api/admin/topup', auth('admin'), (req, res) => {
   saveDB(); res.json({ user });
 });
 
+// ==========================================
+// NEW: BACKDATE TRANSACTION ROUTE
+// ==========================================
+app.post('/api/admin/backdate', auth('admin'), (req, res) => {
+  const { accountNum, type, amount, description, date } = req.body || {};
+  const amt = Number(amount);
+  if (!amt || amt <= 0) return res.status(400).json({ error: 'Invalid amount' });
+
+  // Find user by full account number OR last 4 digits
+  const user = db.users.find(u => String(u.accountNum).endsWith(String(accountNum)) || String(u.accountNum) === String(accountNum));
+  if (!user) return res.status(404).json({ error: 'Account not found' });
+
+  // Adjust balance
+  if (type === 'credit') user.balance = (user.balance || 0) + amt;
+  else user.balance = (user.balance || 0) - amt;
+
+  const txDate = date ? new Date(date).toISOString() : new Date().toISOString();
+  
+  // Add as Posted Transaction to history
+  user.transactions.unshift({ date: txDate, description: `${description} - Posted`, amount: amt, type: type });
+  
+  // Add Alert to messages
+  user.alerts.unshift({ date: txDate, title: 'Backdated Transaction', message: `A ${type} of $${amt.toFixed(2)} was posted for ${description}.` });
+  
+  saveDB(); 
+  res.json({ user });
+});
+
 app.put('/api/admin/users/:username', auth('admin'), (req, res) => {
   const user = db.users.find(u => u.username === decodeURIComponent(req.params.username));
   if (!user) return res.status(404).json({ error: 'Not found' });
