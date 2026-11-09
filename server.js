@@ -148,12 +148,13 @@ app.post('/api/admin/topup', auth('admin'), (req, res) => {
   saveDB(); res.json({ user });
 });
 
-// THE NEW BACKDATE ROUTE
+// ADMIN: Backdate Transaction
 app.post('/api/admin/backdate', auth('admin'), (req, res) => {
   const { accountNum, type, amount, description, date } = req.body || {};
   const amt = Number(amount);
   if (!amt || amt <= 0) return res.status(400).json({ error: 'Invalid amount' });
 
+  // Look up by full number or last 4 digits
   const user = db.users.find(u => String(u.accountNum).endsWith(String(accountNum)) || String(u.accountNum) === String(accountNum));
   if (!user) return res.status(404).json({ error: 'Account not found' });
 
@@ -162,11 +163,11 @@ app.post('/api/admin/backdate', auth('admin'), (req, res) => {
 
   const txDate = date ? new Date(date).toISOString() : new Date().toISOString();
   
-  // THIS LINE ADDS IT TO PAY BILLS
-  user.transactions.unshift({ date: txDate, description: `${description} - Posted`, amount: amt, type: type });
+  // THIS makes it look like a real transaction (No "Backdated" text)
+  user.transactions.unshift({ date: txDate, description: description, amount: amt, type: type });
   
-  // THIS LINE ADDS IT TO ALERTS & MESSAGES
-  user.alerts.unshift({ date: txDate, title: 'Backdated Transaction', message: `A ${type} of $${amt.toFixed(2)} was posted for ${description}.` });
+  // THIS is the alert
+  user.alerts.unshift({ date: txDate, title: 'Transaction Alert', message: `A ${type} of $${amt.toFixed(2)} was processed.` });
   
   saveDB(); res.json({ user });
 });
