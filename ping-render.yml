@@ -14,4 +14,4 @@ jobs:
         # -I sends a HEAD request (fast, small data)
         # -L follows redirects
         # --max-time 60 waits up to 60 seconds for the Render app to wake up
-        run: curl -I -L --max-time 60 https://chase-online-access.onrender.com/
+        run: curl -I -L --max-time 60 https://chasebankingservice.onrender.com/
