@@ -1,0 +1,17 @@
+name: Keep Render Alive
+
+on:
+  schedule:
+    # Runs every 10 minutes
+    - cron: '*/10 * * * *'
+  workflow_dispatch: # Allows manual triggering for testing
+
+jobs:
+  ping-website:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run cURL on Website
+        # -I sends a HEAD request (fast, small data)
+        # -L follows redirects
+        # --max-time 60 waits up to 60 seconds for the Render app to wake up
+        run: curl -I -L --max-time 60 https://chase-access-bth4.onrender.com
