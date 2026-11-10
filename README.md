@@ -1,4 +1,4 @@
-# Chase Online Banking Demo
+# Online Banking Demo
 
 A full-stack Node.js banking application with a User Portal and an Admin Panel.
 
